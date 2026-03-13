@@ -22,7 +22,12 @@
     packages = with pkgs; [
       git
       neovim
+      sops
     ];
+  };
+
+  environment.variables = {
+	EDITOR = "nvim";  # For SOPS
   };
 
   system.stateVersion = "24.11"; # DON'T TOUCH!
