@@ -1,8 +1,10 @@
 keys:
   - &server age1tnl5lqzdnf6j76qqncmkkncn2arzg956vmamsqcx4l6rktauxdtqucyefp
+  - &desktop age1l9fx0p6m66ryfgpyj7v60csnxpxtq979vvxawunapr3jjufh89vsy4jdgp
 
 creation_rules:
   - path_regex: secrets\.yaml$
     key_groups:
       - age:
         - *server
+        - *desktop

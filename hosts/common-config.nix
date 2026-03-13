@@ -2,10 +2,25 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 
 {
+  imports = [ inputs.sops-nix.nixosModules.sops ];
+  sops =
+    let
+      secretPaths = [
+        "syncthing/username"
+        "syncthing/password"
+      ];
+    in
+    {
+      defaultSopsFile = ../secrets.yaml;
+      age.keyFile = "/var/lib/sops-nix/key.txt";
+      secrets = lib.genAttrs secretPaths (_: { });
+    };
+
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
@@ -27,7 +42,7 @@
   };
 
   environment.variables = {
-	EDITOR = "nvim";  # For SOPS
+    EDITOR = "nvim"; # For SOPS
   };
 
   system.stateVersion = "24.11"; # DON'T TOUCH!
