@@ -11,17 +11,6 @@
     ./hardware-configuration.nix
   ];
 
-  sops.templates."syncthing" = {
-    content = ''
-      network={
-        ssid="${config.sops.placeholder."wifi/home/ssid"}"
-        psk="${config.sops.placeholder."wifi/home/psk"}"
-      }
-    '';
-    owner = "wpa_supplicant";
-    mode = "0440";
-  };
-
   networking = {
     hostName = "nixos-homelab";
     interfaces.enp4s0.wakeOnLan.enable = true;
