@@ -11,7 +11,6 @@
   sops =
     let
       secretPaths = [
-        "syncthing/username"
         "syncthing/password"
       ];
     in
