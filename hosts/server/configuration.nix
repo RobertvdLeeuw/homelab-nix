@@ -34,8 +34,20 @@
       guiPasswordFile = config.sops.secrets."syncthing/password".path;
       guiAddress = "0.0.0.0:8384";
 
-      settings.gui = {
-        user = "robert";
+      settings = {
+        gui.user = "robert";
+        devices = {
+          "desktop" = {
+            id = "24PKA7Z-UWYQM46-UORQCZS-TKM3Z3F-YP2CL7Z-A5PTLI5-6EH5OKX-HZLMQAV";
+          };
+        };
+        folders = {
+          "nc-storage" = {
+            path = "/home/robert/nc";
+            devices = [ "desktop" ];
+            ignorePerms = false;
+          };
+        };
       };
     };
   };
