@@ -32,7 +32,11 @@
       openDefaultPorts = true; # Opens 22000 TCP and 22000,21027 UDP for sync/discovery
 
       guiPasswordFile = config.sops.secrets."syncthing/password".path;
-      settings.gui.user = "robert";
+      guiAddress = "0.0.0.0:8384";
+
+      settings.gui = {
+        user = "robert";
+      };
     };
   };
 }
