@@ -18,5 +18,24 @@
     # Configure network proxy if necessary
     # proxy.default = "http://user:password@proxy:port/";
     # proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+
+    firewall.allowedTCPPorts = [ 8384 ]; # Web GUI (if you want remote access)
+  };
+
+  services = {
+    syncthing = {
+      enable = true;
+      user = "robert"; # Run as your user
+      dataDir = "/home/robert"; # Default data location
+      configDir = "/home/robert/.config/syncthing"; # Where Syncthing stores its config
+      openDefaultPorts = true; # Opens 22000 TCP and 22000,21027 UDP for sync/discovery
+
+      settings = {
+        gui = {
+          user = "";
+          password = ""; # Change this or use sops-nix for the password
+        };
+      };
+    };
   };
 }
