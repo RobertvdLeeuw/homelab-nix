@@ -66,21 +66,6 @@
             ./hosts/rpi/configuration.nix
 
             sops-nix.nixosModules.sops
-            # home-manager.nixosModules.home-manager
-            # {
-            #   home-manager = {
-            #     useGlobalPkgs = true;
-            #     useUserPackages = true;
-            #     extraSpecialArgs = {
-            #       inherit inputs;
-            #       hostType = "rpi";
-            #     };
-            #     users = {
-            #       robert = import ./hosts/laptop/home.nix;
-            #       root = import ./hosts/laptop/home-root.nix;
-            #     };
-            #   };
-            # }
           ];
           specialArgs = {
             inherit inputs;
