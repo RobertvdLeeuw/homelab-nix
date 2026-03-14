@@ -27,6 +27,11 @@
 
   time.timeZone = "Europe/Amsterdam";
 
+  services.openssh = {
+    enable = true;
+    ports = [ 8022 ];
+  };
+
   users.users.robert = {
     isNormalUser = true;
     extraGroups = [
