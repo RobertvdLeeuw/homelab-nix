@@ -5,6 +5,28 @@
   ...
 }:
 
+let
+  hardened-base = {
+    PrivateTmp = true; # Isolate /tmp and /var/tmp
+    NoNewPrivileges = true; # Prevent privilege escalation
+    ProtectKernelTunables = true; # Protect /proc/sys, /sys
+    ProtectKernelModules = true; # Prevent loading kernel modules
+    ProtectKernelLogs = true; # Restrict access to kernel logs
+    ProtectControlGroups = true; # Make cgroup filesystem read-only
+    ProtectClock = true; # Prevent setting system clock
+    ProtectHostname = true; # Prevent changing hostname
+    LockPersonality = true; # Prevent personality changes
+    RestrictRealtime = true; # Prevent realtime scheduling (unless audio/video)
+    RestrictSUIDSGID = true; # Prevent SUID/SGID file creation
+    RemoveIPC = true; # Clean up IPC objects on shutdown
+    SystemCallArchitectures = "native"; # Only allow native architecture
+
+    PrivateDevices = true; # No access to physical devices (remove if service needs /dev/*)
+    RestrictNamespaces = true; # Prevent namespace creation (remove for Docker/containers)
+    CapabilityBoundingSet = ""; # Drop all capabilities (add back specific ones as needed)
+    AmbientCapabilities = ""; # No ambient capabilities
+  };
+in
 {
   imports = [
     ../common-config.nix
@@ -25,10 +47,10 @@
     ]; # Web GUI (if you want remote access)
   };
 
-systemd.services.nix-daemon.serviceConfig = {
-  MemoryMax = "13G";
-  MemoryHigh = "10G";
-};
+  systemd.services.nix-daemon.serviceConfig = {
+    MemoryMax = "13G";
+    MemoryHigh = "10G";
+  };
 
   services = {
     syncthing = {
@@ -62,4 +84,6 @@ systemd.services.nix-daemon.serviceConfig = {
       };
     };
   };
+
+  systemd.services.syncthing.serviceConfig = hardened-base;
 }

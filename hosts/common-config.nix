@@ -60,10 +60,14 @@
     };
   };
 
-  environment.variables = {
-    SHELL = "${pkgs.zsh}/bin/zsh";
-    EDITOR = "nvim"; # For SOPS
+  environment = {
+    # systemPackages = with pkgs; [  ];
+    variables = {
+      SHELL = "${pkgs.zsh}/bin/zsh";
+      EDITOR = "nvim"; # For SOPS
+    };
   };
+
   programs.zsh.enable = true;
 
   system.stateVersion = "24.11"; # DON'T TOUCH!
