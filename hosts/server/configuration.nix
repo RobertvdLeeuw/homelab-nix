@@ -109,7 +109,7 @@ in
 
     vaultwarden = {
       enable = true;
-      backupDir = "/var/lib/vaultwarden/backup";
+      backupDir = "/var/local/vaultwarden/backup";
       environmentFile = config.sops.templates."vaultwarden.env".path;
       config = {
         # LAN access - using 0.0.0.0 to allow access from desktop

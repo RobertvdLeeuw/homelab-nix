@@ -8,10 +8,13 @@
 
 {
   imports = [ inputs.sops-nix.nixosModules.sops ];
+
+  # TODO: Make func or smth so I can overlay these (don't want unneeded secrets exposed on rPi)
   sops =
     let
       secretPaths = [
         "syncthing/password"
+        "vaultwarden/admin-token"
       ];
     in
     {
