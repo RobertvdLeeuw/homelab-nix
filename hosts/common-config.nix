@@ -37,6 +37,8 @@
       git
       neovim
       sops
+      tree
+      dust
     ];
   };
 
