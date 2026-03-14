@@ -38,13 +38,6 @@
       "wheel"
       "sudo"
     ];
-    packages = with pkgs; [
-      git
-      neovim
-      sops
-      tree
-      dust
-    ];
   };
 
   environment.variables = {

@@ -37,9 +37,20 @@
             home-manager.nixosModules.home-manager
             {
               home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                sharedModules = [ (dotfiles.shellEnv { hostType = "server"; }) ];
                 users = {
-                  robert.imports = [ dotfiles.shellEnv ];
-                  root.imports = [ dotfiles.shellEnv ];
+                  robert.home = {
+                    username = "robert";
+                    homeDirectory = "/home/robert";
+                    stateVersion = "24.11";
+                  };
+                  root.home = {
+                    username = "root";
+                    homeDirectory = "/root";
+                    stateVersion = "24.11";
+                  };
                 };
               };
             }
