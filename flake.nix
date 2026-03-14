@@ -40,6 +40,8 @@
                 useGlobalPkgs = true;
                 useUserPackages = true;
                 sharedModules = [ (dotfiles.shellEnv { hostType = "server"; }) ];
+                extraSpecialArgs.hostType = "server";
+
                 users = {
                   robert.home = {
                     username = "robert";

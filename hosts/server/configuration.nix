@@ -25,6 +25,11 @@
     ]; # Web GUI (if you want remote access)
   };
 
+systemd.services.nix-daemon.serviceConfig = {
+  MemoryMax = "13G";
+  MemoryHigh = "10G";
+};
+
   services = {
     syncthing = {
       enable = true;

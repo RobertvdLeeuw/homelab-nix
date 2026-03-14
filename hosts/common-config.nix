@@ -32,17 +32,39 @@
     ports = [ 8022 ];
   };
 
-  users.users.robert = {
-    isNormalUser = true;
-    extraGroups = [
-      "wheel"
-      "sudo"
+  nixpkgs.config.allowUnfree = true;
+
+  nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
     ];
+    substituters = [
+      "https://cache.nixos.org/"
+    ];
+    trusted-public-keys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+    ];
+
+  };
+
+  users = {
+    defaultUserShell = pkgs.zsh;
+
+    users.robert = {
+      isNormalUser = true;
+      extraGroups = [
+        "wheel"
+        "sudo"
+      ];
+    };
   };
 
   environment.variables = {
+    SHELL = "${pkgs.zsh}/bin/zsh";
     EDITOR = "nvim"; # For SOPS
   };
+  programs.zsh.enable = true;
 
   system.stateVersion = "24.11"; # DON'T TOUCH!
 }
