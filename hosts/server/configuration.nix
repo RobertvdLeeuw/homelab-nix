@@ -61,14 +61,10 @@ in
     hostName = "nixos-homelab";
     interfaces.enp4s0.wakeOnLan.enable = true;
     firewall.allowedTCPPorts = [
-      8384
-      8022
+      8022 # SSH
+      8384 # Syncthing
+      8222 # Vaultwarden
     ];
-  };
-
-  systemd.services.nix-daemon.serviceConfig = {
-    MemoryMax = "13G";
-    MemoryHigh = "10G";
   };
 
   sops.templates."vaultwarden.env" = {
@@ -91,6 +87,7 @@ in
       settings = {
         gui.user = "robert";
         devices = {
+          # TODO: Hide these via sops?
           "desktop".id = "24PKA7Z-UWYQM46-UORQCZS-TKM3Z3F-YP2CL7Z-A5PTLI5-6EH5OKX-HZLMQAV";
           "laptop".id = "J267XXP-JPQEOP7-D23EIG5-QU25QS2-Y2KLCBT-NSLSG4A-UWDAU5X-54S4UAV";
         };
@@ -119,7 +116,7 @@ in
 
         # Domain will be http://nixos-homelab:8222 for LAN access
         # Update this when you set up tailscale/reverse proxy
-        # DOMAIN = "http://nixos-homelab:8222";
+        DOMAIN = "http://nixos-homelab:8222";
 
         # Disable signups - you'll create accounts via admin panel
         SIGNUPS_ALLOWED = false;
@@ -135,7 +132,16 @@ in
     };
   };
 
+  systemd.services.wpa_supplicant.serviceConfig.BindReadOnlyPaths = [
+    "/run/secrets/rendered/vaultwarden.env"
+  ];
+
   systemd.services = {
+    nix-daemon.serviceConfig = {
+      MemoryMax = "13G";
+      MemoryHigh = "10G";
+    };
+
     syncthing.serviceConfig = hardened-standard // {
       ProtectHome = false; # Syncthing needs user files
       ReadWritePaths = [
@@ -144,17 +150,22 @@ in
       ];
     };
 
-    vaultwarden.serviceConfig = hardened-standard // {
-      # Vaultwarden needs to write to its data directory
-      ReadWritePaths = [
-        "/var/lib/vaultwarden"
-      ];
-      # Allow binding to 0.0.0.0:8222 for LAN access
-      RestrictAddressFamilies = [
-        "AF_UNIX"
-        "AF_INET"
-        "AF_INET6"
-      ];
-    };
+    # vaultwarden.serviceConfig = hardened-standard // {
+    #   # Vaultwarden needs to write to its data directory
+    #   ReadWritePaths = [
+    #     "/var/lib/vaultwarden"
+    #   ];
+    #
+    #   # Allow binding to 0.0.0.0:8222 for LAN access
+    #   RestrictAddressFamilies = [
+    #     "AF_UNIX"
+    #     "AF_INET"
+    #     "AF_INET6"
+    #   ];
+    #
+    #   BindReadOnlyPaths = [
+    #     config.sops.templates."vaultwarden.env".path
+    #   ];
+    # };
   };
 }
