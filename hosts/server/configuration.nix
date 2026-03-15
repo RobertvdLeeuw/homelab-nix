@@ -116,7 +116,7 @@ in
 
         # Domain will be http://nixos-homelab:8222 for LAN access
         # Update this when you set up tailscale/reverse proxy
-        DOMAIN = "http://nixos-homelab:8222";
+        # DOMAIN = "http://nixos-homelab:8222";
 
         # Disable signups - you'll create accounts via admin panel
         SIGNUPS_ALLOWED = false;
@@ -132,10 +132,6 @@ in
     };
   };
 
-  systemd.services.wpa_supplicant.serviceConfig.BindReadOnlyPaths = [
-    "/run/secrets/rendered/vaultwarden.env"
-  ];
-
   systemd.services = {
     nix-daemon.serviceConfig = {
       MemoryMax = "13G";
@@ -150,22 +146,22 @@ in
       ];
     };
 
-    # vaultwarden.serviceConfig = hardened-standard // {
-    #   # Vaultwarden needs to write to its data directory
-    #   ReadWritePaths = [
-    #     "/var/lib/vaultwarden"
-    #   ];
-    #
-    #   # Allow binding to 0.0.0.0:8222 for LAN access
-    #   RestrictAddressFamilies = [
-    #     "AF_UNIX"
-    #     "AF_INET"
-    #     "AF_INET6"
-    #   ];
-    #
-    #   BindReadOnlyPaths = [
-    #     config.sops.templates."vaultwarden.env".path
-    #   ];
-    # };
+    vaultwarden.serviceConfig = hardened-standard // {
+      # Vaultwarden needs to write to its data directory
+      ReadWritePaths = [
+        "/var/lib/vaultwarden"
+      ];
+
+      # Allow binding to 0.0.0.0:8222 for LAN access
+      RestrictAddressFamilies = [
+        "AF_UNIX"
+        "AF_INET"
+        "AF_INET6"
+      ];
+
+      # BindReadOnlyPaths = [
+      # config.sops.templates."vaultwarden.env".path
+      # ];
+    };
   };
 }
