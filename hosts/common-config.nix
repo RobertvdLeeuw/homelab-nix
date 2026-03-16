@@ -15,6 +15,7 @@
       secretPaths = [
         "syncthing/password"
         "vaultwarden/admin-token"
+        "tailscale/auth-key"
       ];
     in
     {

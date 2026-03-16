@@ -60,11 +60,17 @@ in
   networking = {
     hostName = "nixos-homelab";
     interfaces.enp4s0.wakeOnLan.enable = true;
-    firewall.allowedTCPPorts = [
-      8022 # SSH
-      8384 # Syncthing
-      8222 # Vaultwarden
-    ];
+    firewall = {
+      allowedTCPPorts = [
+        8022 # SSH
+        # 8384 # Syncthing
+        # 8222 # Vaultwarden
+      ];
+      allowedUDPPorts = [ config.services.tailscale.port ];
+
+      # Allow Tailscale traffic
+      trustedInterfaces = [ "tailscale0" ];
+    };
   };
 
   sops.templates."vaultwarden.env" = {
@@ -76,6 +82,61 @@ in
   };
 
   services = {
+    tailscale = {
+      enable = true;
+      authKeyFile = config.sops.secrets."tailscale/auth-key".path;
+      useRoutingFeatures = "server";
+      # Enable Tailscale SSH (optional but recommended)
+      extraUpFlags = [ "--ssh" ];
+    };
+
+    nginx = {
+      enable = true;
+
+      # Recommended settings for security and performance
+      recommendedTlsSettings = true;
+      recommendedOptimisation = true;
+      recommendedGzipSettings = true;
+      recommendedProxySettings = true;
+
+      virtualHosts = {
+        # Vaultwarden - accessible via https://nixos-homelab.your-tailnet.ts.net
+        "${config.networking.hostName}" = {
+          # Use Tailscale's automatic HTTPS
+          forceSSL = true;
+          sslCertificate = "/var/lib/tailscale/certs/${config.networking.hostName}.ts.net.crt";
+          sslCertificateKey = "/var/lib/tailscale/certs/${config.networking.hostName}.ts.net.key";
+
+          locations = {
+            "/vault/" = {
+              proxyPass = "http://127.0.0.1:8222/";
+              proxyWebsockets = true;
+              extraConfig = ''
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Host $host;
+
+                proxy_read_timeout 3600;
+                proxy_connect_timeout 3600;
+                proxy_send_timeout 3600;
+              '';
+            };
+            "/sync/" = {
+              proxyPass = "http://127.0.0.1:8384/";
+              proxyWebsockets = true;
+              extraConfig = ''
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Host $host;
+              '';
+            };
+          };
+        };
+      };
+    };
+
     syncthing = {
       enable = true;
       user = "robert";
@@ -109,19 +170,13 @@ in
       backupDir = "/var/local/vaultwarden/backup";
       environmentFile = config.sops.templates."vaultwarden.env".path;
       config = {
-        # LAN access - using 0.0.0.0 to allow access from desktop
-        ROCKET_ADDRESS = "0.0.0.0";
+        ROCKET_ADDRESS = "127.0.0.1";
         ROCKET_PORT = 8222;
         ROCKET_LOG = "critical";
 
-        # Domain will be http://nixos-homelab:8222 for LAN access
-        # Update this when you set up tailscale/reverse proxy
-        # DOMAIN = "http://nixos-homelab:8222";
+        DOMAIN = "https://${config.networking.hostName}/vault";
 
-        # Disable signups - you'll create accounts via admin panel
         SIGNUPS_ALLOWED = false;
-
-        # Disable invitations for now (can enable later)
         INVITATIONS_ALLOWED = false;
 
         # You can configure SMTP later if needed
@@ -138,6 +193,57 @@ in
       MemoryHigh = "10G";
     };
 
+    tailscaled.serviceConfig = hardened-base // {
+      # Tailscale needs network and some privileges
+      CapabilityBoundingSet = [
+        "CAP_NET_ADMIN"
+        "CAP_NET_RAW"
+        "CAP_NET_BIND_SERVICE"
+      ];
+      AmbientCapabilities = [
+        "CAP_NET_ADMIN"
+        "CAP_NET_RAW"
+        "CAP_NET_BIND_SERVICE"
+      ];
+      RestrictAddressFamilies = [
+        "AF_UNIX"
+        "AF_INET"
+        "AF_INET6"
+        "AF_NETLINK"
+      ];
+      # Tailscale needs to manage network interfaces
+      ProtectSystem = "strict";
+      ProtectHome = true;
+      ReadWritePaths = [
+        "/var/lib/tailscale"
+      ];
+      SystemCallFilter = [
+        "@system-service"
+        "@network-io"
+      ];
+    };
+
+    # nginx hardening
+    nginx.serviceConfig = hardened-standard // {
+      # nginx needs to bind to privileged ports and read certs
+      CapabilityBoundingSet = [
+        "CAP_NET_BIND_SERVICE"
+        "CAP_SYS_RESOURCE"
+      ];
+      AmbientCapabilities = [
+        "CAP_NET_BIND_SERVICE"
+        "CAP_SYS_RESOURCE"
+      ];
+      ReadWritePaths = [
+        "/var/log/nginx"
+        "/var/cache/nginx"
+      ];
+      # nginx needs to read Tailscale certs
+      BindReadOnlyPaths = [
+        "/var/lib/tailscale/certs"
+      ];
+    };
+
     syncthing.serviceConfig = hardened-standard // {
       ProtectHome = false; # Syncthing needs user files
       ReadWritePaths = [
@@ -150,18 +256,8 @@ in
       # Vaultwarden needs to write to its data directory
       ReadWritePaths = [
         "/var/lib/vaultwarden"
+        "/var/local/vaultwarden"
       ];
-
-      # Allow binding to 0.0.0.0:8222 for LAN access
-      RestrictAddressFamilies = [
-        "AF_UNIX"
-        "AF_INET"
-        "AF_INET6"
-      ];
-
-      # BindReadOnlyPaths = [
-      # config.sops.templates."vaultwarden.env".path
-      # ];
     };
   };
 }
