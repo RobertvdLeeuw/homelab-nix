@@ -24,11 +24,6 @@
       secrets = lib.genAttrs secretPaths (_: { });
     };
 
-  boot.loader = {
-    systemd-boot.enable = true;
-    efi.canTouchEfiVariables = true;
-  };
-
   time.timeZone = "Europe/Amsterdam";
 
   services.openssh = {
@@ -36,7 +31,10 @@
     ports = [ 8022 ];
   };
 
-  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config = {
+    allowUnfree = true;
+    allowUnsupportedSystem = true;
+  };
 
   nix.settings = {
     experimental-features = [

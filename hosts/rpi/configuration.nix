@@ -7,12 +7,15 @@
 }:
 
 {
-  imports = with inputs.nixos-raspberrypi.nixosModules; [
-    # Base RPi 4 support
+  imports = [
+    ./hardware-configuration.nix
+    ../common-config.nix
+  ]
+  ++ (with inputs.nixos-raspberrypi.nixosModules; [
     raspberry-pi-4.base
     raspberry-pi-4.display-vc4
     raspberry-pi-4.bluetooth
-  ];
+  ]);
 
   networking.hostName = "nixos-rpi";
 
@@ -25,7 +28,7 @@
   hardware.raspberry-pi.config = {
     all = {
       options = {
-        # PWN fan: GPIO number (14 for TXD)
+        # PWM fan: GPIO number (14 for TXD)
         dtoverlay = [
           {
             enable = true;
@@ -41,8 +44,10 @@
   };
 
   # Enable SSH for remote access
-  services.openssh.enable = true;
-  services.openssh.settings.PermitRootLogin = "prohibit-password";
+  services.openssh = {
+    enable = true;
+    settings.PermitRootLogin = "prohibit-password";
+  };
 
   # User configuration
   users.users.robert = {

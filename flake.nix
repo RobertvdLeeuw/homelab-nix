@@ -22,6 +22,15 @@
     };
   };
 
+  nixConfig = {
+    extra-substituters = [
+      "https://nixos-raspberrypi.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
+    ];
+  };
+
   outputs =
     {
       self,
@@ -99,34 +108,34 @@
           ];
         };
 
-        rpi-installer = nixos-raspberrypi.lib.nixosInstaller {
-          specialArgs = { inherit inputs nixos-raspberrypi; };
-          modules = [
-            {
-              # Hardware modules for RPi 4
-              imports = with nixos-raspberrypi.nixosModules; [
-                raspberry-pi-4.base
-                raspberry-pi-4.display-vc4
-              ];
-
-              networking.hostName = "rpi-installer";
-
-              # Enable SSH and set up your key for headless access
-              services.openssh.enable = true;
-              services.openssh.settings.PermitRootLogin = "yes";
-
-              system.stateVersion = "24.11";
-            }
-          ];
-        };
+        # rpi-installer = nixos-raspberrypi.lib.nixosInstaller {
+        #   specialArgs = { inherit inputs nixos-raspberrypi; };
+        #   modules = [
+        #     {
+        #       # Hardware modules for RPi 4
+        #       imports = with nixos-raspberrypi.nixosModules; [
+        #         raspberry-pi-4.base
+        #         raspberry-pi-4.display-vc4
+        #       ];
+        #
+        #       networking.hostName = "rpi-installer";
+        #
+        #       # Enable SSH and set up your key for headless access
+        #       services.openssh.enable = true;
+        #       services.openssh.settings.PermitRootLogin = "yes";
+        #
+        #       system.stateVersion = "24.11";
+        #     }
+        #   ];
+        # };
       };
 
       checks.x86_64-linux = {
-        server = self.nixosConfigurations.server.config.system.build.toplevel;
-        rpi = self.nixosConfigurations.rpi.config.system.build.toplevel;
+        x86_64-linux.server = self.nixosConfigurations.server.config.system.build.toplevel;
+        aarch64-linux.rpi = self.nixosConfigurations.rpi.config.system.build.toplevel;
       };
 
-      packages.aarch64-linux.rpi-installer-image =
-        self.nixosConfigurations.rpi-installer.config.system.build.sdImage;
+      # packages.aarch64-linux.rpi-installer-image =
+      #   self.nixosConfigurations.rpi-installer.config.system.build.sdImage;
     };
 }

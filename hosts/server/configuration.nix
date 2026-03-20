@@ -57,6 +57,11 @@ in
     ./hardware-configuration.nix
   ];
 
+  boot.loader = {
+    systemd-boot.enable = true;
+    efi.canTouchEfiVariables = true;
+  };
+
   networking = {
     hostName = "nixos-homelab";
     interfaces.enp4s0.wakeOnLan.enable = true;
