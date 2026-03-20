@@ -28,7 +28,10 @@
 
   services.openssh = {
     enable = true;
-    ports = [ 8022 ];
+    ports = [
+      22
+      8022
+    ];
   };
 
   nixpkgs.config = {

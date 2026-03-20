@@ -27,18 +27,20 @@
   # Fan will turn on at the specified temp and off 10°C below that
   hardware.raspberry-pi.config = {
     all = {
-      options = {
-        # PWM fan: GPIO number (14 for TXD)
-        dtoverlay = [
-          {
-            enable = true;
-            params = {
-              gpiopin = "14";
-              temp = "60000"; # 10000 = 10C, 20000 = 20C, etc.
+      dt-overlays = {
+        gpio-fan = {
+          enable = true;
+          params = {
+            gpiopin = {
+              enable = true;
+              value = "14";
             };
-            overlay = "gpio-fan";
-          }
-        ];
+            temp = {
+              enable = true;
+              value = "60000";
+            };
+          };
+        };
       };
     };
   };
