@@ -112,8 +112,6 @@ in
 
           sslCertificate = "/var/lib/self-signed-certs/nixos-homelab.crt";
           sslCertificateKey = "/var/lib/self-signed-certs/nixos-homelab.key";
-          # sslCertificate = "/var/lib/tailscale/certs/${config.networking.hostName}.ts.net.crt";
-          # sslCertificateKey = "/var/lib/tailscale/certs/${config.networking.hostName}.ts.net.key";
 
           locations = {
             "/vault/" = {
