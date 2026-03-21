@@ -278,7 +278,7 @@ in
         ];
         # nginx needs to read Tailscale certs
         BindReadOnlyPaths = [
-          "/var/lib/tailscale/certs"
+          "/var/lib/self-signed-certs"
         ];
       };
     };
