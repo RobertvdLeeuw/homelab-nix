@@ -107,10 +107,13 @@ in
       virtualHosts = {
         # Vaultwarden - accessible via https://nixos-homelab.your-tailnet.ts.net
         "${config.networking.hostName}" = {
-          # Use Tailscale's automatic HTTPS
+          enableACME = false;
           forceSSL = true;
-          sslCertificate = "/var/lib/tailscale/certs/${config.networking.hostName}.ts.net.crt";
-          sslCertificateKey = "/var/lib/tailscale/certs/${config.networking.hostName}.ts.net.key";
+
+          sslCertificate = "/var/lib/self-signed-certs/nixos-homelab.crt";
+          sslCertificateKey = "/var/lib/self-signed-certs/nixos-homelab.key";
+          # sslCertificate = "/var/lib/tailscale/certs/${config.networking.hostName}.ts.net.crt";
+          # sslCertificateKey = "/var/lib/tailscale/certs/${config.networking.hostName}.ts.net.key";
 
           locations = {
             "/vault/" = {
@@ -198,71 +201,112 @@ in
       MemoryHigh = "10G";
     };
 
-    tailscaled.serviceConfig = hardened-base // {
-      # Tailscale needs network and some privileges
-      CapabilityBoundingSet = [
-        "CAP_NET_ADMIN"
-        "CAP_NET_RAW"
-        "CAP_NET_BIND_SERVICE"
-      ];
-      AmbientCapabilities = [
-        "CAP_NET_ADMIN"
-        "CAP_NET_RAW"
-        "CAP_NET_BIND_SERVICE"
-      ];
-      RestrictAddressFamilies = [
-        "AF_UNIX"
-        "AF_INET"
-        "AF_INET6"
-        "AF_NETLINK"
-      ];
-      # Tailscale needs to manage network interfaces
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      PrivateDevices = false;
-      ReadWritePaths = [
-        "/var/lib/tailscale"
-      ];
-      SystemCallFilter = [
-        "@system-service"
-        "@network-io"
-      ];
+    tailscaled = {
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
+
+      serviceConfig = hardened-base // {
+        # Tailscale needs network and some privileges
+        CapabilityBoundingSet = [
+          "CAP_NET_ADMIN"
+          "CAP_NET_RAW"
+          "CAP_NET_BIND_SERVICE"
+        ];
+        AmbientCapabilities = [
+          "CAP_NET_ADMIN"
+          "CAP_NET_RAW"
+          "CAP_NET_BIND_SERVICE"
+        ];
+        RestrictAddressFamilies = [
+          "AF_UNIX"
+          "AF_INET"
+          "AF_INET6"
+          "AF_NETLINK"
+        ];
+        # Tailscale needs to manage network interfaces
+        ProtectSystem = "strict";
+        ProtectHome = true;
+        PrivateDevices = false;
+        ReadWritePaths = [
+          "/var/lib/tailscale"
+        ];
+        SystemCallFilter = [
+          "@system-service"
+          "@network-io"
+        ];
+      };
     };
 
-    nginx.serviceConfig = hardened-standard // {
-      # nginx needs to bind to privileged ports and read certs
-      CapabilityBoundingSet = [
-        "CAP_NET_BIND_SERVICE"
-        "CAP_SYS_RESOURCE"
-      ];
-      AmbientCapabilities = [
-        "CAP_NET_BIND_SERVICE"
-        "CAP_SYS_RESOURCE"
-      ];
-      ReadWritePaths = [
-        "/var/log/nginx"
-        "/var/cache/nginx"
-      ];
-      # nginx needs to read Tailscale certs
-      BindReadOnlyPaths = [
-        "/var/lib/tailscale/certs"
-      ];
+    generate-self-signed-cert = {
+      wantedBy = [ "multi-user.target" ];
+      before = [ "nginx.service" ];
+
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
+
+      script = ''
+        mkdir -p /var/lib/self-signed-certs
+        if [ ! -f /var/lib/self-signed-certs/nixos-homelab.key ]; then
+          ${pkgs.openssl}/bin/openssl req -x509 -newkey rsa:4096 \
+            -keyout /var/lib/self-signed-certs/nixos-homelab.key \
+            -out /var/lib/self-signed-certs/nixos-homelab.crt \
+            -days 3650 -nodes \
+            -subj "/CN=nixos-homelab"
+        fi
+      '';
     };
 
-    syncthing.serviceConfig = hardened-standard // {
-      ProtectHome = false; # Syncthing needs user files
-      ReadWritePaths = [
-        "/home/robert/nc"
-        "/home/robert/.config/syncthing"
-      ];
+    nginx = {
+      after = [ "tailscale.service" ];
+      wants = [ "tailscale.service" ];
+
+      serviceConfig = hardened-standard // {
+        # nginx needs to bind to privileged ports and read certs
+        CapabilityBoundingSet = [
+          "CAP_NET_BIND_SERVICE"
+          "CAP_SYS_RESOURCE"
+        ];
+        AmbientCapabilities = [
+          "CAP_NET_BIND_SERVICE"
+          "CAP_SYS_RESOURCE"
+        ];
+        ReadWritePaths = [
+          "/var/log/nginx"
+          "/var/cache/nginx"
+        ];
+        # nginx needs to read Tailscale certs
+        BindReadOnlyPaths = [
+          "/var/lib/tailscale/certs"
+        ];
+      };
     };
 
-    vaultwarden.serviceConfig = hardened-standard // {
-      # Vaultwarden needs to write to its data directory
-      ReadWritePaths = [
-        "/var/lib/vaultwarden"
-        "/var/local/vaultwarden"
-      ];
+    syncthing = {
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
+
+      serviceConfig = hardened-standard // {
+        ProtectHome = false; # Syncthing needs user files
+        ReadWritePaths = [
+          "/home/robert/nc"
+          "/home/robert/.config/syncthing"
+        ];
+      };
+    };
+
+    vaultwarden = {
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
+
+      serviceConfig = hardened-standard // {
+        # Vaultwarden needs to write to its data directory
+        ReadWritePaths = [
+          "/var/lib/vaultwarden"
+          "/var/local/vaultwarden"
+        ];
+      };
     };
   };
 }
