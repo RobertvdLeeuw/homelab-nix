@@ -105,13 +105,11 @@ in
       recommendedProxySettings = true;
 
       virtualHosts = {
-        # Vaultwarden - accessible via https://nixos-homelab.your-tailnet.ts.net
+        # Vaultwarden
         "${config.networking.hostName}" = {
           enableACME = false;
           forceSSL = true;
 
-          # sslCertificate = "/var/lib/self-signed-certs/nixos-homelab.crt";
-          # sslCertificateKey = "/var/lib/self-signed-certs/nixos-homelab.key";
           sslCertificate = "/var/lib/tailscale/certs/nixos-homelab.tail672432.ts.net.crt";
           sslCertificateKey = "/var/lib/tailscale/certs/nixos-homelab.tail672432.ts.net.key";
 
@@ -157,7 +155,6 @@ in
       settings = {
         gui.user = "robert";
         devices = {
-          # TODO: Hide these via sops?
           "desktop".id = "24PKA7Z-UWYQM46-UORQCZS-TKM3Z3F-YP2CL7Z-A5PTLI5-6EH5OKX-HZLMQAV";
           "laptop".id = "J267XXP-JPQEOP7-D23EIG5-QU25QS2-Y2KLCBT-NSLSG4A-UWDAU5X-54S4UAV";
         };
@@ -198,9 +195,7 @@ in
 
   systemd = {
     tmpfiles.rules = [
-      "d /var/lib/tailscale/certs 0755 root nginx - -"
-      "z /var/lib/tailscale/certs/*.crt 0644 root nginx - -"
-      "z /var/lib/tailscale/certs/*.key 0640 root nginx - -"
+      "d /var/lib/tailscale 0711 root root - -"
     ];
 
     services = {
@@ -245,31 +240,6 @@ in
         };
       };
 
-      generate-self-signed-cert = {
-        wantedBy = [ "multi-user.target" ];
-        before = [ "nginx.service" ];
-
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-        };
-
-        script = ''
-          mkdir -p /var/lib/self-signed-certs
-          if [ ! -f /var/lib/self-signed-certs/nixos-homelab.key ]; then
-            ${pkgs.openssl}/bin/openssl req -x509 -newkey rsa:4096 \
-              -keyout /var/lib/self-signed-certs/nixos-homelab.key \
-              -out /var/lib/self-signed-certs/nixos-homelab.crt \
-              -days 3650 -nodes \
-              -subj "/CN=nixos-homelab"
-
-            # Make key readable by nginx
-            chown root:nginx /var/lib/self-signed-certs/nixos-homelab.key
-            chmod 640 /var/lib/self-signed-certs/nixos-homelab.key
-          fi
-        '';
-      };
-
       nginx = {
         after = [ "tailscale.service" ];
         wants = [ "tailscale.service" ];
@@ -280,18 +250,15 @@ in
             "CAP_NET_BIND_SERVICE"
             "CAP_SYS_RESOURCE"
           ];
+
           AmbientCapabilities = [
             "CAP_NET_BIND_SERVICE"
             "CAP_SYS_RESOURCE"
           ];
+
           ReadWritePaths = [
             "/var/log/nginx"
             "/var/cache/nginx"
-          ];
-          # nginx needs to read Tailscale certs
-          ReadOnlyPaths = [
-            # "/var/lib/self-signed-certs"
-            "/var/lib/tailscale/certs"
           ];
         };
       };
