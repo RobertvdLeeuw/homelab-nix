@@ -219,6 +219,7 @@ in
       # Tailscale needs to manage network interfaces
       ProtectSystem = "strict";
       ProtectHome = true;
+      PrivateDevices = false;
       ReadWritePaths = [
         "/var/lib/tailscale"
       ];
@@ -228,7 +229,6 @@ in
       ];
     };
 
-    # nginx hardening
     nginx.serviceConfig = hardened-standard // {
       # nginx needs to bind to privileged ports and read certs
       CapabilityBoundingSet = [

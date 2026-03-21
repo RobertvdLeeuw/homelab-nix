@@ -41,11 +41,11 @@
         "waybar-modules": "waybar-modules"
       },
       "locked": {
-        "lastModified": 1774047494,
-        "narHash": "sha256-bv3BGIQRjHmuFOw2xu+hjiu2LZN1dN8IK3WLCOUwYTE=",
+        "lastModified": 1774114722,
+        "narHash": "sha256-tJjK3tbYeF9/gpmdJBGDLeBhhjhrHx3Ebn5HMS8Oa2A=",
         "owner": "RobertvdLeeuw",
         "repo": "dotfiles_nix",
-        "rev": "72d2194782e33dabcb5cb016f028972e093975f7",
+        "rev": "eeb7194f30c999a6110f7729c4da64333313f5ae",
         "type": "github"
       },
       "original": {
@@ -328,11 +328,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1773970322,
-        "narHash": "sha256-xyO9ZV+cZk+HVmjS6P5Jzwl6ioRCKgeLQSSbUFtPrZk=",
+        "lastModified": 1774109759,
+        "narHash": "sha256-Ksvw+R+kwCr+liA4h+TtQaYSW/0Jl+NDMThU5TBsJIY=",
         "owner": "notashelf",
         "repo": "nvf",
-        "rev": "8aad181ec9057c56b6fe5d6081a399427e1d1dec",
+        "rev": "4f1074084eb86e8d8a32e19e78f3cf2adba0213e",
         "type": "github"
       },
       "original": {
