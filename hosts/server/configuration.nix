@@ -115,11 +115,6 @@ in
           # sslCertificate = "/var/lib/tailscale/certs/${config.networking.hostName}.ts.net.crt";
           # sslCertificateKey = "/var/lib/tailscale/certs/${config.networking.hostName}.ts.net.key";
 
-          serverAliases = [
-            "100.79.157.102"
-            "${config.networking.hostName}.tail672432.ts.net"
-          ];
-
           locations = {
             "/vault/" = {
               proxyPass = "http://127.0.0.1:8222/";
@@ -187,8 +182,7 @@ in
         ROCKET_PORT = 8222;
         ROCKET_LOG = "critical";
 
-        # DOMAIN = "https://${config.networking.hostName}/vault";
-        DOMAIN = "https://100.79.157.102/vault";
+        DOMAIN = "https://${config.networking.hostName}/vault";
 
         SIGNUPS_ALLOWED = false;
         INVITATIONS_ALLOWED = false;
