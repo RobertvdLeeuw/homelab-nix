@@ -115,7 +115,7 @@ in
 
           locations = {
             "/vault/" = {
-              proxyPass = "http://127.0.0.1:8222/";
+              proxyPass = "http://127.0.0.1:8222";
               proxyWebsockets = true;
               extraConfig = ''
                 proxy_set_header X-Real-IP $remote_addr;
