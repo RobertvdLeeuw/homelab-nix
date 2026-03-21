@@ -91,7 +91,6 @@ in
       enable = true;
       authKeyFile = config.sops.secrets."tailscale/auth-key".path;
       useRoutingFeatures = "server";
-      # Enable Tailscale SSH (optional but recommended)
       extraUpFlags = [ "--ssh" ];
     };
 
@@ -131,6 +130,17 @@ in
 
             "/sync/" = {
               proxyPass = "http://127.0.0.1:8384/";
+              proxyWebsockets = true;
+              extraConfig = ''
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Host $host;
+              '';
+            };
+
+            "/adguard/" = {
+              proxyPass = "http://127.0.0.1:3003/";
               proxyWebsockets = true;
               extraConfig = ''
                 proxy_set_header X-Real-IP $remote_addr;
@@ -184,18 +194,57 @@ in
 
         SIGNUPS_ALLOWED = false;
         INVITATIONS_ALLOWED = false;
+      };
+    };
 
-        # You can configure SMTP later if needed
-        # SMTP_HOST = "127.0.0.1";
-        # SMTP_PORT = 25;
-        # SMTP_SSL = false;
+    adguardhome = {
+      enable = true;
+      host = "127.0.0.1";
+      port = 3003;
+      settings = {
+        dns = {
+          bind_hosts = [ "100.79.157.102" ];
+          port = 53;
+          upstream_dns = [
+            "1.1.1.1"
+            "1.0.0.1"
+          ];
+        };
+        filtering = {
+          protection_enabled = true;
+          filtering_enabled = true;
+          parental_enabled = false;
+          safe_search.enabled = false;
+        };
+        filters =
+          map
+            (url: {
+              enabled = true;
+              inherit url;
+            })
+            [
+              # Malware/hacked sites
+              "https://adguardteam.github.io/HostlistsRegistry/assets/filter_9.txt"
+
+              # Malicious URLs
+              "https://adguardteam.github.io/HostlistsRegistry/assets/filter_11.txt"
+
+              # AdGuard DNS filter (ads + trackers)
+              "https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt"
+
+              # Tracking Protection
+              "https://adguardteam.github.io/HostlistsRegistry/assets/filter_3.txt"
+
+              # Steven Black's Unified (popular all-in-one)
+              "https://adguardteam.github.io/HostlistsRegistry/assets/filter_33.txt"
+            ];
       };
     };
   };
 
   systemd = {
     tmpfiles.rules = [
-      "d /var/lib/tailscale 0711 root root - -"
+      "d /var/lib/tailscale 0711 root root - -" # For NGINX to read cerfiticates.
     ];
 
     services = {
@@ -285,6 +334,21 @@ in
           ReadWritePaths = [
             "/var/lib/vaultwarden"
             "/var/local/vaultwarden"
+          ];
+        };
+      };
+
+      adguardhome = {
+        after = [ "network-online.target" ];
+        wants = [ "network-online.target" ];
+
+        serviceConfig = hardened-standard // {
+          # Needs to bind to port 53 (privileged)
+          CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
+          AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
+
+          ReadWritePaths = [
+            "/var/lib/AdGuardHome"
           ];
         };
       };
