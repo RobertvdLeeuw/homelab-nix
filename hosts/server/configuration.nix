@@ -7,48 +7,48 @@
 let
   # Tier 1: Always safe - applies to everything
   hardened-base = {
-    PrivateTmp = true;
-    NoNewPrivileges = true;
-    ProtectKernelTunables = true;
-    ProtectKernelModules = true;
-    ProtectKernelLogs = true;
-    ProtectControlGroups = true;
-    ProtectClock = true;
-    ProtectHostname = true;
-    LockPersonality = true;
-    RestrictRealtime = true;
-    RestrictSUIDSGID = true;
-    RemoveIPC = true;
-    SystemCallArchitectures = "native";
-    PrivateDevices = true;
-    RestrictNamespaces = true;
-    CapabilityBoundingSet = "";
-    AmbientCapabilities = "";
+    PrivateTmp = lib.mkDefault true;
+    NoNewPrivileges = lib.mkDefault true;
+    ProtectKernelTunables = lib.mkDefault true;
+    ProtectKernelModules = lib.mkDefault true;
+    ProtectKernelLogs = lib.mkDefault true;
+    ProtectControlGroups = lib.mkDefault true;
+    ProtectClock = lib.mkDefault true;
+    ProtectHostname = lib.mkDefault true;
+    LockPersonality = lib.mkDefault true;
+    RestrictRealtime = lib.mkDefault true;
+    RestrictSUIDSGID = lib.mkDefault true;
+    RemoveIPC = lib.mkDefault true;
+    SystemCallArchitectures = lib.mkDefault "native";
+    PrivateDevices = lib.mkDefault true;
+    RestrictNamespaces = lib.mkDefault true;
+    CapabilityBoundingSet = lib.mkDefault "";
+    AmbientCapabilities = lib.mkDefault "";
   };
 
   # Tier 2: Standard hardening - works for 80% of services
   # Use this for: web services, file sync, databases, most network daemons
   hardened-standard = hardened-base // {
-    ProtectSystem = "strict";
-    ProtectHome = true;
-    RestrictAddressFamilies = [
+    ProtectSystem = lib.mkDefault "strict";
+    ProtectHome = lib.mkDefault true;
+    RestrictAddressFamilies = lib.mkDefault [
       "AF_UNIX"
       "AF_INET"
       "AF_INET6"
     ];
-    MemoryDenyWriteExecute = true;
-    SystemCallFilter = [
+    MemoryDenyWriteExecute = lib.mkDefault true;
+    SystemCallFilter = lib.mkDefault [
       "@system-service"
       "~@privileged"
       "~@resources"
     ];
-    SystemCallErrorNumber = "EPERM";
+    SystemCallErrorNumber = lib.mkDefault "EPERM";
   };
 
   # Tier 3: Strict - maximum isolation for highly isolated services
   # Use for services that don't interact with host users/files
   hardened-strict = hardened-standard // {
-    PrivateUsers = true; # Run in private user namespace
+    PrivateUsers = lib.mkDefault true; # Run in private user namespace
   };
 in
 {
@@ -139,47 +139,47 @@ in
               '';
             };
 
-            "/plex/" = {
-              proxyPass = "http://127.0.0.1:32400/";
-              proxyWebsockets = true;
-              extraConfig = ''
-                # Allow long streaming sessions
-                proxy_read_timeout 3600;
-                proxy_connect_timeout 3600;
-                proxy_send_timeout 3600;
-                send_timeout 100m;
-
-                # Forward client info to Plex
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto $scheme;
-                proxy_set_header X-Forwarded-Host $host;
-                proxy_set_header Referer $server_addr;
-                proxy_set_header Origin $server_addr;
-
-                # Plex-specific headers (pass through)
-                proxy_set_header X-Plex-Client-Identifier $http_x_plex_client_identifier;
-                proxy_set_header X-Plex-Device $http_x_plex_device;
-                proxy_set_header X-Plex-Device-Name $http_x_plex_device_name;
-                proxy_set_header X-Plex-Platform $http_x_plex_platform;
-                proxy_set_header X-Plex-Platform-Version $http_x_plex_platform_version;
-                proxy_set_header X-Plex-Product $http_x_plex_product;
-                proxy_set_header X-Plex-Token $http_x_plex_token;
-                proxy_set_header X-Plex-Version $http_x_plex_version;
-
-                # Websocket support for streaming
-                proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection "upgrade";
-
-                # Disable buffering for streaming
-                proxy_redirect off;
-                proxy_buffering off;
-
-                # Support large file uploads (camera uploads, etc)
-                client_max_body_size 100M;
-              '';
-            };
+            # "/plex/" = {
+            #   proxyPass = "http://127.0.0.1:32400/";
+            #   proxyWebsockets = true;
+            #   extraConfig = ''
+            #     # Allow long streaming sessions
+            #     proxy_read_timeout 3600;
+            #     proxy_connect_timeout 3600;
+            #     proxy_send_timeout 3600;
+            #     send_timeout 100m;
+            #
+            #     # Forward client info to Plex
+            #     proxy_set_header X-Real-IP $remote_addr;
+            #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            #     proxy_set_header X-Forwarded-Proto $scheme;
+            #     proxy_set_header X-Forwarded-Host $host;
+            #     proxy_set_header Referer $server_addr;
+            #     proxy_set_header Origin $server_addr;
+            #
+            #     # Plex-specific headers (pass through)
+            #     proxy_set_header X-Plex-Client-Identifier $http_x_plex_client_identifier;
+            #     proxy_set_header X-Plex-Device $http_x_plex_device;
+            #     proxy_set_header X-Plex-Device-Name $http_x_plex_device_name;
+            #     proxy_set_header X-Plex-Platform $http_x_plex_platform;
+            #     proxy_set_header X-Plex-Platform-Version $http_x_plex_platform_version;
+            #     proxy_set_header X-Plex-Product $http_x_plex_product;
+            #     proxy_set_header X-Plex-Token $http_x_plex_token;
+            #     proxy_set_header X-Plex-Version $http_x_plex_version;
+            #
+            #     # Websocket support for streaming
+            #     proxy_http_version 1.1;
+            #     proxy_set_header Upgrade $http_upgrade;
+            #     proxy_set_header Connection "upgrade";
+            #
+            #     # Disable buffering for streaming
+            #     proxy_redirect off;
+            #     proxy_buffering off;
+            #
+            #     # Support large file uploads (camera uploads, etc)
+            #     client_max_body_size 100M;
+            #   '';
+            # };
 
             "/adguard/" = {
               proxyPass = "http://127.0.0.1:3003/";
@@ -294,6 +294,7 @@ in
   systemd = {
     tmpfiles.rules = [
       "d /var/lib/tailscale 0711 root root - -" # For NGINX to read cerfiticates.
+      "d /var/lib/plex 0755 robert users - -"
     ];
 
     services = {
@@ -396,6 +397,11 @@ in
             "/var/lib/plex"
             "/home/robert/media"
           ];
+
+          # Plex uses bubblewrap, needs user namespaces and no capability restrictions
+          RestrictNamespaces = false;
+          CapabilityBoundingSet = "";
+          AmbientCapabilities = "";
         };
       };
 
