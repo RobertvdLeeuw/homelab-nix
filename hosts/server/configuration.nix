@@ -139,6 +139,48 @@ in
               '';
             };
 
+            "/plex/" = {
+              proxyPass = "http://127.0.0.1:32400/";
+              proxyWebsockets = true;
+              extraConfig = ''
+                # Allow long streaming sessions
+                proxy_read_timeout 3600;
+                proxy_connect_timeout 3600;
+                proxy_send_timeout 3600;
+                send_timeout 100m;
+
+                # Forward client info to Plex
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header Referer $server_addr;
+                proxy_set_header Origin $server_addr;
+
+                # Plex-specific headers (pass through)
+                proxy_set_header X-Plex-Client-Identifier $http_x_plex_client_identifier;
+                proxy_set_header X-Plex-Device $http_x_plex_device;
+                proxy_set_header X-Plex-Device-Name $http_x_plex_device_name;
+                proxy_set_header X-Plex-Platform $http_x_plex_platform;
+                proxy_set_header X-Plex-Platform-Version $http_x_plex_platform_version;
+                proxy_set_header X-Plex-Product $http_x_plex_product;
+                proxy_set_header X-Plex-Token $http_x_plex_token;
+                proxy_set_header X-Plex-Version $http_x_plex_version;
+
+                # Websocket support for streaming
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "upgrade";
+
+                # Disable buffering for streaming
+                proxy_redirect off;
+                proxy_buffering off;
+
+                # Support large file uploads (camera uploads, etc)
+                client_max_body_size 100M;
+              '';
+            };
+
             "/adguard/" = {
               proxyPass = "http://127.0.0.1:3003/";
               proxyWebsockets = true;
@@ -195,6 +237,13 @@ in
         SIGNUPS_ALLOWED = false;
         INVITATIONS_ALLOWED = false;
       };
+    };
+
+    plex = {
+      enable = true;
+      openFirewall = false; # Routing through Tailscale + nginx
+      dataDir = "/var/lib/plex";
+      user = "robert";
     };
 
     adguardhome = {
@@ -334,6 +383,18 @@ in
           ReadWritePaths = [
             "/var/lib/vaultwarden"
             "/var/local/vaultwarden"
+          ];
+        };
+      };
+
+      plex = {
+        after = [ "network-online.target" ];
+        wants = [ "network-online.target" ];
+
+        serviceConfig = hardened-standard // {
+          ReadWritePaths = [
+            "/var/lib/plex"
+            "/home/robert/media"
           ];
         };
       };
