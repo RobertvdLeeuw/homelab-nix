@@ -103,6 +103,12 @@ in
       recommendedGzipSettings = true;
       recommendedProxySettings = true;
 
+      proxyTimeout = "3600s";
+      commonHttpConfig = ''
+        proxy_headers_hash_max_size 1024;
+        proxy_headers_hash_bucket_size 128;
+      '';
+
       virtualHosts = {
         # Vaultwarden
         "${config.networking.hostName}" = {
@@ -178,6 +184,16 @@ in
 
                 # Support large file uploads (camera uploads, etc)
                 client_max_body_size 100M;
+              '';
+            };
+
+            "/web/" = {
+              proxyPass = "http://127.0.0.1:32400/web/";
+              extraConfig = ''
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Host $host;
               '';
             };
 
