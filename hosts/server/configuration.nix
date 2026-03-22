@@ -13,6 +13,7 @@
     ./modules/vaultwarden.nix
     ./modules/syncthing.nix
     ./modules/adguard.nix
+    ./modules/homepage.nix
   ];
 
   boot.loader = {
