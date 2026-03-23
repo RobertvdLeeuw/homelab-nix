@@ -15,6 +15,12 @@ in
       host = "127.0.0.1";
       port = 3003;
       settings = {
+        users = [
+          {
+            user = "admin";
+            password = "$2a$12$mJwDmElis0z.fvKl.rTU4.mSWhESgF9eiitqRzRKjPIAf5nqG/Gdy";
+          }
+        ];
         dns = {
           bind_hosts = [ "100.79.157.102" ];
           port = 53;
@@ -55,14 +61,20 @@ in
     };
 
     nginx.virtualHosts."${config.networking.hostName}".locations = {
+      "/adguard" = {
+        return = "301 /adguard/";
+      };
       "/adguard/" = {
         proxyPass = "http://127.0.0.1:3003/";
-        proxyWebsockets = true;
         extraConfig = ''
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header X-Forwarded-Proto $scheme;
           proxy_set_header X-Forwarded-Host $host;
+          proxy_set_header X-Forwarded-Prefix /adguard;
+
+          proxy_redirect / /adguard/;
+          proxy_redirect ~^/(.*)$ /adguard/$1;
         '';
       };
     };
