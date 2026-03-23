@@ -7,6 +7,27 @@
 
 let
   hardening = import ../../hardening.nix { inherit lib; };
+
+  #   stats:
+  #   cpu
+  #   ram
+  #   storage
+  #
+  #   network:
+  #     Up/down
+  #     DNS status (adguard)
+  #
+  # Pages (rename):
+  #   omnisearch
+  #   indivuous
+  #   smth email?
+  #
+  # services:
+  #   Adguard
+  #   Syncthing
+  #   Jellyfin
+  #   Tailscale?
+  #   ...
 in
 {
   services = {
@@ -19,33 +40,22 @@ in
         theme = "dark";
         color = "slate";
 
-        layout = [
-          {
-            "Widgets" = {
-              style = "column";
-            };
-          }
-          {
-            "Services" = {
-              style = "column";
-              columns = 2;
-            };
-          }
-        ];
+        # layout = [
+        #   {
+        #     "Widgets" = {
+        #       style = "column";
+        #     };
+        #   }
+        #   {
+        #     "Services" = {
+        #       style = "column";
+        #       columns = 2;
+        #     };
+        #   }
+        # ];
       };
 
       services = [
-        {
-          "Widgets" = [
-            {
-              resources = {
-                cpu = true;
-                memory = true;
-                disk = "/";
-              };
-            }
-          ];
-        }
         {
           "Services" = [
             {
@@ -73,6 +83,21 @@ in
               };
             }
           ];
+        }
+      ];
+
+      widgets = [
+        {
+          resources = {
+            cpu = true;
+            memory = true;
+            disk = "/";
+          };
+
+          adguard = {
+            url = "https://127.0.0.1/adguard";
+            latency = true;
+          };
         }
       ];
     };
