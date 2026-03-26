@@ -27,7 +27,7 @@ in
         ROCKET_PORT = 8222;
         ROCKET_LOG = "critical";
 
-        DOMAIN = "https://vault.${config.networking.hostName}";
+        DOMAIN = "https://vault.rvdlserver.nl";
 
         SIGNUPS_ALLOWED = false;
         INVITATIONS_ALLOWED = false;
