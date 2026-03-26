@@ -20,11 +20,6 @@
       url = "github:nvmd/nixos-raspberrypi/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    nix-topology = {
-      url = "github:oddlama/nix-topology";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   nixConfig = {
@@ -42,7 +37,6 @@
       nixpkgs,
       home-manager,
       sops-nix,
-      nix-topology,
       nixos-raspberrypi,
       dotfiles,
       ...
@@ -55,7 +49,6 @@
             ./hosts/server/configuration.nix
 
             sops-nix.nixosModules.sops
-            nix-topology.nixosModules.default
 
             home-manager.nixosModules.home-manager
             {
@@ -91,7 +84,6 @@
             ./hosts/rpi/configuration.nix
 
             sops-nix.nixosModules.sops
-            nix-topology.nixosModules.default
 
             home-manager.nixosModules.home-manager
             {
@@ -117,18 +109,6 @@
             }
           ];
         };
-      };
-
-      topology.x86_64-linux = import nix-topology {
-        pkgs = import nixpkgs {
-          system = "x86_64-linux";
-          overlays = [ nix-topology.overlays.default ];
-        };
-        modules = [
-          {
-            nixosConfigurations = self.nixosConfigurations;
-          }
-        ];
       };
 
       checks.x86_64-linux = {
