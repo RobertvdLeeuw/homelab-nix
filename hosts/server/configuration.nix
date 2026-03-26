@@ -15,6 +15,7 @@
     ./modules/adguard.nix
     ./modules/homepage.nix
     ./modules/degoog.nix
+    ./modules/topology.nix
   ];
 
   boot.loader = {
