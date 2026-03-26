@@ -39,6 +39,7 @@ in
             {
               domain = "*.nixos-homelab.tail672432.ts.net";
               answer = "100.79.157.102"; # Your server's Tailscale IP
+              enabled = true;
             }
           ];
         };

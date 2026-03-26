@@ -33,18 +33,20 @@ in
     };
   };
 
-  systemd.tmpfiles.rules = [
-    "d /var/lib/degoog 0755 1000 1000 -"
-  ];
+  systemd = {
+    tmpfiles.rules = [
+      "d /var/lib/degoog 0755 1000 1000 -"
+    ];
 
-  systemd.services.podman-degoog = {
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
+    services.podman-degoog = {
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
 
-    # Hardening done in container options.
+      # Hardening done in container options.
+    };
   };
 
-  services.nginx.virtualHosts."search.${config.networking.hostName}.tail672432.ts.net" = {
+  services.nginx.virtualHosts."search.${config.networking.hostName}" = {
     enableACME = false;
     forceSSL = true;
 
