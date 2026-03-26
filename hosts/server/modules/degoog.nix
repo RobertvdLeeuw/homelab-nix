@@ -44,7 +44,7 @@ in
     # Hardening done in container options.
   };
 
-  services.nginx.virtualHosts."search.${config.networking.hostName}" = {
+  services.nginx.virtualHosts."search.${config.networking.hostName}.tail672432.ts.net" = {
     enableACME = false;
     forceSSL = true;
 
