@@ -31,11 +31,11 @@ in
         proxy_headers_hash_bucket_size 128;
       '';
 
-      virtualHosts."rvdlserver.nl" = {
-        forceSSL = true;
-        useACMEHost = "rvdlserver.nl";
-        locations = { };
-      };
+      # virtualHosts."rvdlserver.nl" = {
+      #   forceSSL = true;
+      #   useACMEHost = "rvdlserver.nl";
+      #   locations = { };
+      # };
     };
   };
 
