@@ -73,13 +73,9 @@ in
       };
     };
 
-    nginx.virtualHosts."adguard.${config.networking.hostName}" = {
-      enableACME = false;
+    nginx.virtualHosts."adguard.rvdlserver.nl" = {
       forceSSL = true;
-
-      # Use the same cert as the main host (browser will warn about CN mismatch)
-      sslCertificate = "/var/lib/tailscale/certs/${config.networking.hostName}.tail672432.ts.net.crt";
-      sslCertificateKey = "/var/lib/tailscale/certs/${config.networking.hostName}.tail672432.ts.net.key";
+      useACMEHost = "rvdlserver.nl";
 
       locations."/" = {
         proxyPass = "http://127.0.0.1:3003/";
@@ -89,9 +85,6 @@ in
           proxy_set_header X-Forwarded-Proto $scheme;
           proxy_set_header X-Forwarded-Host $host;
           proxy_set_header X-Forwarded-Prefix /adguard;
-
-          proxy_redirect / /adguard/;
-          proxy_redirect ~^/(.*)$ /adguard/$1;
         '';
       };
     };

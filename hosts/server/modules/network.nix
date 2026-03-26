@@ -31,16 +31,10 @@ in
         proxy_headers_hash_bucket_size 128;
       '';
 
-      virtualHosts = {
-        "${config.networking.hostName}" = {
-          enableACME = false;
-          forceSSL = true;
-
-          sslCertificate = "/var/lib/tailscale/certs/nixos-homelab.tail672432.ts.net.crt";
-          sslCertificateKey = "/var/lib/tailscale/certs/nixos-homelab.tail672432.ts.net.key";
-
-          locations = { };
-        };
+      virtualHosts."rvdlserver.nl" = {
+        forceSSL = true;
+        useACMEHost = "rvdlserver.nl";
+        locations = { };
       };
     };
   };

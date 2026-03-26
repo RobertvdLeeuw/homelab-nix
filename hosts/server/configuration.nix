@@ -9,7 +9,12 @@
   imports = [
     ../common-config.nix
     ./hardware-configuration.nix
+
+    # Base
     ./modules/network.nix
+    ./modules/acme.nix
+
+    # Services
     ./modules/vaultwarden.nix
     ./modules/syncthing.nix
     ./modules/adguard.nix

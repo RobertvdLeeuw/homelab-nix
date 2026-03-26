@@ -46,13 +46,9 @@ in
     };
   };
 
-  services.nginx.virtualHosts."search.${config.networking.hostName}" = {
-    enableACME = false;
+  services.nginx.virtualHosts."search.rvdlserver.nl" = {
     forceSSL = true;
-
-    # Use the same cert as the main host (browser will warn about CN mismatch)
-    sslCertificate = "/var/lib/tailscale/certs/${config.networking.hostName}.tail672432.ts.net.crt";
-    sslCertificateKey = "/var/lib/tailscale/certs/${config.networking.hostName}.tail672432.ts.net.key";
+    useACMEHost = "rvdlserver.nl";
 
     locations."/" = {
       proxyPass = "http://127.0.0.1:4444";

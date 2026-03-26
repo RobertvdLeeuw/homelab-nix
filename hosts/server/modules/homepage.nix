@@ -65,11 +65,23 @@ in
 
       services = [
         {
+          "Uncucked Browsing" = [
+            {
+              "Search" = {
+                icon = "google.svg";
+                href = "https://search.rvdlserver.nl";
+                description = "Search engine aggegrator";
+                target = "_self";
+              };
+            }
+          ];
+        }
+        {
           "Internal Services" = [
             {
               "Vaultwarden" = {
                 icon = "vaultwarden.svg";
-                href = "https://vault.${config.networking.hostName}";
+                href = "https://vault.rvdlserver.nl";
                 description = "Password manager";
                 target = "_self";
               };
@@ -77,7 +89,7 @@ in
             {
               "Syncthing" = {
                 icon = "syncthing.svg";
-                href = "https://sync.${config.networking.hostName}";
+                href = "https://sync.rvdlserver.nl";
                 description = "File synchronization";
                 target = "_self";
               };
@@ -85,25 +97,14 @@ in
             {
               "AdGuard Home" = {
                 icon = "adguard-home.svg";
-                href = "https://adguard.${config.networking.hostName}";
+                href = "https://adguard.rvdlserver.nl";
                 description = "DNS ad blocking";
-                target = "_self";
-              };
-            }
-          ];
-          "Uncucked Browsing" = [
-            {
-              "Search" = {
-                icon = "google.svg";
-                href = "https://search.${config.networking.hostName}";
-                description = "Search engine aggegrator";
                 target = "_self";
               };
             }
           ];
         }
       ];
-
       widgets = [
         {
           resources = {
@@ -115,8 +116,11 @@ in
       ];
     };
 
-    nginx.virtualHosts."${config.networking.hostName}".locations = {
-      "/" = {
+    nginx.virtualHosts."rvdlserver.nl" = {
+      forceSSL = true;
+      useACMEHost = "rvdlserver.nl";
+
+      locations."/" = {
         proxyPass = "http://127.0.0.1:3001";
         proxyWebsockets = true;
         extraConfig = ''
@@ -134,7 +138,8 @@ in
     wants = [ "network-online.target" ];
 
     environment = {
-      HOMEPAGE_ALLOWED_HOSTS = lib.mkForce config.networking.hostName;
+      # HOMEPAGE_ALLOWED_HOSTS = lib.mkForce config.networking.hostName;
+      HOMEPAGE_ALLOWED_HOSTS = lib.mkForce "rvdlserver.nl";
     };
 
     serviceConfig = hardening.hardened.standard // {

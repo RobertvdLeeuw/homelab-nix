@@ -37,12 +37,9 @@ in
       };
     };
 
-    nginx.virtualHosts."sync.${config.networking.hostName}" = {
-      enableACME = false;
+    nginx.virtualHosts."sync.rvdlserver.nl" = {
       forceSSL = true;
-
-      sslCertificate = "/var/lib/tailscale/certs/${config.networking.hostName}.tail672432.ts.net.crt";
-      sslCertificateKey = "/var/lib/tailscale/certs/${config.networking.hostName}.tail672432.ts.net.key";
+      useACMEHost = "rvdlserver.nl";
 
       locations."/" = {
         proxyPass = "http://127.0.0.1:8384/";

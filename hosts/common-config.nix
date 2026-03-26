@@ -17,6 +17,7 @@
         "vaultwarden/admin-token"
         "tailscale/auth-key"
         "adguard/password"
+        "cloudflare/api-token"
       ];
     in
     {
