@@ -117,18 +117,18 @@
             }
           ];
         };
+      };
 
-        topology.x86_64-linux = import nix-topology {
-          pkgs = import nixpkgs {
-            system = "x86_64-linux";
-            overlays = [ nix-topology.overlays.default ];
-          };
-          modules = [
-            {
-              nixosConfigurations = self.nixosConfigurations;
-            }
-          ];
+      topology.x86_64-linux = import nix-topology {
+        pkgs = import nixpkgs {
+          system = "x86_64-linux";
+          overlays = [ nix-topology.overlays.default ];
         };
+        modules = [
+          {
+            nixosConfigurations = self.nixosConfigurations;
+          }
+        ];
       };
 
       checks.x86_64-linux = {
