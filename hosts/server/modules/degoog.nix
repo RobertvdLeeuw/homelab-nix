@@ -44,15 +44,25 @@ in
     # Hardening done in container options.
   };
 
-  services.nginx.virtualHosts."search.${config.networking.hostName}" = {
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:4444";
+  services.nginx.virtualHosts."${config.networking.hostName}".locations = {
+    "/search" = {
+      return = "301 /search/";
+    };
+    "/search/" = {
+      proxyPass = "http://127.0.0.1:4444/";
       proxyWebsockets = true;
       extraConfig = ''
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Host $host;
+
+        # Rewrite HTML content
+        sub_filter 'href="/' 'href="/search/';
+        sub_filter 'src="/' 'src="/search/';
+        sub_filter 'action="/' 'action="/search/';
+        sub_filter_once off;
+        sub_filter_types text/html text/css application/javascript;
       '';
     };
   };
