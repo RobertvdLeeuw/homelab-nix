@@ -14,12 +14,15 @@
     ./modules/network.nix
     ./modules/acme.nix
 
-    # Services
+    # Internal Services
     ./modules/vaultwarden.nix
     ./modules/syncthing.nix
     ./modules/adguard.nix
     ./modules/homepage.nix
+
+    # Uncucking
     ./modules/degoog.nix
+    ./modules/noisy.nix
   ];
 
   boot.loader = {
