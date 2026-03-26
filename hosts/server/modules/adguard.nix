@@ -41,6 +41,11 @@ in
               answer = "100.79.157.102"; # Your server's Tailscale IP
               enabled = true;
             }
+            {
+              domain = "*.nixos-homelab";
+              answer = "100.79.157.102";
+              enabled = true;
+            }
           ];
         };
         filters =
@@ -68,11 +73,15 @@ in
       };
     };
 
-    nginx.virtualHosts."${config.networking.hostName}".locations = {
-      "/adguard" = {
-        return = "301 /adguard/";
-      };
-      "/adguard/" = {
+    nginx.virtualHosts."adguard.${config.networking.hostName}" = {
+      enableACME = false;
+      forceSSL = true;
+
+      # Use the same cert as the main host (browser will warn about CN mismatch)
+      sslCertificate = "/var/lib/tailscale/certs/${config.networking.hostName}.tail672432.ts.net.crt";
+      sslCertificateKey = "/var/lib/tailscale/certs/${config.networking.hostName}.tail672432.ts.net.key";
+
+      locations."/" = {
         proxyPass = "http://127.0.0.1:3003/";
         extraConfig = ''
           proxy_set_header X-Real-IP $remote_addr;

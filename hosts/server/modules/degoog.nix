@@ -46,7 +46,7 @@ in
     };
   };
 
-  services.nginx.virtualHosts."search.${config.networking.hostName}.tail672432.ts.net" = {
+  services.nginx.virtualHosts."search.${config.networking.hostName}" = {
     enableACME = false;
     forceSSL = true;
 

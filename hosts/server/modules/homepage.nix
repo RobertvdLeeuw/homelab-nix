@@ -47,22 +47,15 @@ in
         theme = "dark";
         color = "slate";
 
-        environmentFile =
-          let
-            file = pkgs.writeText "homepage-dashboard-env" ''
-              LOG_LEVEL=debug
-            '';
-          in
-          "${file}";
-
         layout = [
           {
-            "Browsing" = {
+            "Uncucked Browsing" = {
               style = "column";
+              columns = 1;
             };
           }
           {
-            "Services" = {
+            "Internal Services" = {
               style = "column";
               columns = 2;
             };
@@ -72,11 +65,11 @@ in
 
       services = [
         {
-          "Services" = [
+          "Internal Services" = [
             {
               "Vaultwarden" = {
                 icon = "vaultwarden.svg";
-                href = "https://${config.networking.hostName}/vault";
+                href = "https://vault.${config.networking.hostName}";
                 description = "Password manager";
                 target = "_self";
               };
@@ -84,7 +77,7 @@ in
             {
               "Syncthing" = {
                 icon = "syncthing.svg";
-                href = "https://${config.networking.hostName}/sync";
+                href = "https://sync.${config.networking.hostName}";
                 description = "File synchronization";
                 target = "_self";
               };
@@ -92,14 +85,21 @@ in
             {
               "AdGuard Home" = {
                 icon = "adguard-home.svg";
-                href = "https://${config.networking.hostName}/adguard";
+                href = "https://adguard.${config.networking.hostName}";
                 description = "DNS ad blocking";
                 target = "_self";
               };
             }
           ];
-          "Browsing" = [
-
+          "Uncucked Browsing" = [
+            {
+              "Search" = {
+                icon = "google.svg";
+                href = "https://search.${config.networking.hostName}";
+                description = "Search engine aggegrator";
+                target = "_self";
+              };
+            }
           ];
         }
       ];

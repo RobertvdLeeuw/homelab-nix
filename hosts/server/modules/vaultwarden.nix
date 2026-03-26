@@ -27,22 +27,28 @@ in
         ROCKET_PORT = 8222;
         ROCKET_LOG = "critical";
 
-        DOMAIN = "https://${config.networking.hostName}/vault";
+        DOMAIN = "https://vault.${config.networking.hostName}";
 
         SIGNUPS_ALLOWED = false;
         INVITATIONS_ALLOWED = false;
       };
     };
 
-    nginx.virtualHosts."${config.networking.hostName}".locations = {
-      "/vault/" = {
+    nginx.virtualHosts."vault.${config.networking.hostName}" = {
+      enableACME = false;
+      forceSSL = true;
+
+      sslCertificate = "/var/lib/tailscale/certs/${config.networking.hostName}.tail672432.ts.net.crt";
+      sslCertificateKey = "/var/lib/tailscale/certs/${config.networking.hostName}.tail672432.ts.net.key";
+
+      locations."/" = {
         proxyPass = "http://127.0.0.1:8222";
         proxyWebsockets = true;
         extraConfig = ''
           proxy_set_header X-Real-IP $remote_addr;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header X-Forwarded-Proto $scheme;
-          proxy_set_header X-Forwarded-Host $host;
+          proxy_set_header Host $host;
 
           proxy_read_timeout 3600;
           proxy_connect_timeout 3600;

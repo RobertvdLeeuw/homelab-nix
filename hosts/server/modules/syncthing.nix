@@ -37,8 +37,14 @@ in
       };
     };
 
-    nginx.virtualHosts."${config.networking.hostName}".locations = {
-      "/sync/" = {
+    nginx.virtualHosts."sync.${config.networking.hostName}" = {
+      enableACME = false;
+      forceSSL = true;
+
+      sslCertificate = "/var/lib/tailscale/certs/${config.networking.hostName}.tail672432.ts.net.crt";
+      sslCertificateKey = "/var/lib/tailscale/certs/${config.networking.hostName}.tail672432.ts.net.key";
+
+      locations."/" = {
         proxyPass = "http://127.0.0.1:8384/";
         proxyWebsockets = true;
         extraConfig = ''
