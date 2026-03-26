@@ -17,8 +17,8 @@ in
       settings = {
         users = [
           {
-            user = "admin";
-            password = "$2a$12$mJwDmElis0z.fvKl.rTU4.mSWhESgF9eiitqRzRKjPIAf5nqG/Gdy";
+            name = "admin";
+            password = "$2a$12$x6UeskNnFFu6ynQy/I6H5.FPky6KkzXQKnFA/ZuTVjZPa5qSdrsiS";
           }
         ];
         dns = {

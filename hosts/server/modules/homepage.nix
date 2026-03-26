@@ -30,6 +30,13 @@ let
   #   ...
 in
 {
+  sops.templates."homepage-env" = {
+    content = ''
+      HOMEPAGE_VAR_ADGUARD_PASSWORD=${config.sops.placeholder."adguard/password"}
+    '';
+    # owner = "homepage-dashboard";
+  };
+
   services = {
     homepage-dashboard = {
       enable = true;
@@ -40,19 +47,27 @@ in
         theme = "dark";
         color = "slate";
 
-        # layout = [
-        #   {
-        #     "Widgets" = {
-        #       style = "column";
-        #     };
-        #   }
-        #   {
-        #     "Services" = {
-        #       style = "column";
-        #       columns = 2;
-        #     };
-        #   }
-        # ];
+        environmentFile =
+          let
+            file = pkgs.writeText "homepage-dashboard-env" ''
+              LOG_LEVEL=debug
+            '';
+          in
+          "${file}";
+
+        layout = [
+          {
+            "Browsing" = {
+              style = "column";
+            };
+          }
+          {
+            "Services" = {
+              style = "column";
+              columns = 2;
+            };
+          }
+        ];
       };
 
       services = [
@@ -83,6 +98,9 @@ in
               };
             }
           ];
+          "Browsing" = [
+
+          ];
         }
       ];
 
@@ -92,11 +110,6 @@ in
             cpu = true;
             memory = true;
             disk = "/";
-          };
-
-          adguard = {
-            url = "https://127.0.0.1/adguard";
-            latency = true;
           };
         }
       ];

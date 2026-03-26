@@ -14,6 +14,7 @@
     ./modules/syncthing.nix
     ./modules/adguard.nix
     ./modules/homepage.nix
+    ./modules/degoog.nix
   ];
 
   boot.loader = {

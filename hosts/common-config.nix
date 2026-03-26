@@ -16,6 +16,7 @@
         "syncthing/password"
         "vaultwarden/admin-token"
         "tailscale/auth-key"
+        "adguard/password"
       ];
     in
     {
