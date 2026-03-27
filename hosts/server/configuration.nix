@@ -13,16 +13,17 @@
     # Base
     ./modules/network.nix
     ./modules/acme.nix
+    ./modules/cloudflared.nix
 
     # Internal Services
     ./modules/vaultwarden.nix
     ./modules/syncthing.nix
     ./modules/adguard.nix
     ./modules/homepage.nix
+    ./modules/radicale.nix
 
     # Uncucking
     ./modules/degoog.nix
-    ./modules/noisy.nix
   ];
 
   boot.loader = {

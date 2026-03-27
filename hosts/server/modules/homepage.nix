@@ -7,27 +7,6 @@
 
 let
   hardening = import ../../hardening.nix { inherit lib; };
-
-  #   stats:
-  #   cpu
-  #   ram
-  #   storage
-  #
-  #   network:
-  #     Up/down
-  #     DNS status (adguard)
-  #
-  # Pages (rename):
-  #   omnisearch
-  #   indivuous
-  #   smth email?
-  #
-  # services:
-  #   Adguard
-  #   Syncthing
-  #   Jellyfin
-  #   Tailscale?
-  #   ...
 in
 {
   sops.templates."homepage-env" = {
@@ -99,6 +78,14 @@ in
                 icon = "adguard-home.svg";
                 href = "https://adguard.rvdlserver.nl";
                 description = "DNS ad blocking";
+                target = "_self";
+              };
+            }
+            {
+              "Radicale" = {
+                icon = "radicale.svg";
+                href = "https://cal.rvdlserver.nl";
+                description = "Calendar sync";
                 target = "_self";
               };
             }

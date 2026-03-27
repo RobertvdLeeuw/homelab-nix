@@ -9,28 +9,25 @@ let
   hardening = import ../../hardening.nix { inherit lib; };
 in
 {
-  virtualisation.oci-containers = {
-    backend = "podman";
-    containers.degoog = {
-      image = "ghcr.io/fccview/degoog:latest";
-      ports = [ "127.0.0.1:4444:4444" ];
-      volumes = [
-        "/var/lib/degoog:/app/data:rw"
-      ];
-      environment = {
-        DEGOOG_PORT = "4444";
-      };
-      extraOptions = [
-        "--user=1000:1000"
-        "--security-opt=label=disable"
-        "--cap-drop=ALL"
-        "--cap-add=CHOWN"
-        "--cap-add=SETGID"
-        "--cap-add=SETUID"
-        "--read-only"
-        "--tmpfs=/tmp"
-      ];
+  virtualisation.oci-containers.containers.degoog = {
+    image = "ghcr.io/fccview/degoog:latest";
+    ports = [ "127.0.0.1:4444:4444" ];
+    volumes = [
+      "/var/lib/degoog:/app/data:rw"
+    ];
+    environment = {
+      DEGOOG_PORT = "4444";
     };
+    extraOptions = [
+      "--user=1000:1000"
+      "--security-opt=label=disable"
+      "--cap-drop=ALL"
+      "--cap-add=CHOWN"
+      "--cap-add=SETGID"
+      "--cap-add=SETUID"
+      "--read-only"
+      "--tmpfs=/tmp"
+    ];
   };
 
   systemd = {
