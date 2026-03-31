@@ -11,7 +11,6 @@ in
 {
   virtualisation.oci-containers.containers.degoog = {
     image = "ghcr.io/fccview/degoog:latest";
-    ports = [ "127.0.0.1:4444:4444" ];
     volumes = [
       "/var/lib/degoog:/app/data:rw"
     ];
@@ -19,6 +18,7 @@ in
       DEGOOG_PORT = "4444";
     };
     extraOptions = [
+      "--network=host" # Needed to connect to SearXNG.
       "--user=1000:1000"
       "--security-opt=label=disable"
       "--cap-drop=ALL"
@@ -74,8 +74,7 @@ in
 
     settings = {
       server = {
-        bind_address = "127.0.0.1";
-        # bind_address = "0.0.0.0";
+        bind_address = "0.0.0.0"; # Degoog can't connect when on localhost for some reason.
         port = 8888;
         secret_key = "@SEARXNG_SECRET@"; # Will use sops template
         limiter = false; # Internal use only
@@ -86,9 +85,8 @@ in
       search = {
         formats = [
           "json"
-          "html"
         ]; # Essential for degoog plugin
-        safe_search = 1;
+        safe_search = 0;
       };
 
       engines = lib.mapAttrsToList (name: value: { inherit name; } // value) {
