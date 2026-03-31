@@ -23,7 +23,7 @@
     ./modules/radicale.nix
 
     # Uncucking
-    ./modules/degoog.nix
+    ./modules/search-engine.nix
   ];
 
   boot.loader = {

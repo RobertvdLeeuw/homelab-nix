@@ -9,6 +9,15 @@ let
   hardening = import ../../hardening.nix { inherit lib; };
 in
 {
+  # users = {
+  #   users.adguardhome = {
+  #     isSystemUser = true;
+  #     group = "adguardhome";
+  #     extraGroups = [ "nginx" ];
+  #   };
+  #   groups.adguardhome = { };
+  # };
+
   services = {
     adguardhome = {
       enable = true;
@@ -29,6 +38,15 @@ in
             "1.0.0.1"
           ];
         };
+        # TODO: Look into sweep-all config to have DoH on all tailscale devices.
+        # tls = {
+        #   enabled = true;
+        #   server_name = "dns.rvdlserver.nl";
+        #   force_https = false; # NGINX handles this.
+        #   port_https = 443;
+        #   certificate_chain = "/var/lib/acme/rvdlserver.nl/cert.pem";
+        #   private_key = "/var/lib/acme/rvdlserver.nl/key.pem";
+        # };
         filtering = {
           protection_enabled = true;
           filtering_enabled = true;
@@ -91,8 +109,14 @@ in
   };
 
   systemd.services.adguardhome = {
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
+    after = [
+      "network-online.target"
+      # "acme-rvdlserver.nl.service"
+    ];
+    wants = [
+      "network-online.target"
+      # "acme-rvdlserver.nl.service"
+    ];
 
     serviceConfig = hardening.hardened.base // {
       # AdGuard needs to bind to port 53 and write to its config/data
@@ -101,6 +125,12 @@ in
       ReadWritePaths = [
         "/var/lib/AdGuardHome"
       ];
+      # BindReadOnlyPaths = [
+      #   "/var/lib/acme/rvdlserver.nl/cert.pem"
+      #   "/var/lib/acme/rvdlserver.nl/key.pem"
+      # ];
     };
   };
+
+  # networking.firewall.allowedTCPPorts = [ 443 ];
 }

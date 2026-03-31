@@ -20,6 +20,7 @@
         "cloudflare/api-token"
         "cloudflare/tunnel-token"
         "radicale/htpasswd"
+        "searxng/secret"
       ];
     in
     {
