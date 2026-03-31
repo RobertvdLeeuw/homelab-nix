@@ -74,7 +74,7 @@ in
 
     settings = {
       server = {
-        bind_address = "0.0.0.0"; # Degoog can't connect when on localhost for some reason.
+        bind_address = "127.0.0.1";
         port = 8888;
         secret_key = "@SEARXNG_SECRET@"; # Will use sops template
         limiter = false; # Internal use only
@@ -128,6 +128,24 @@ in
         "karmasearch".disabled = true;
         "karmasearch videos".disabled = true;
       };
+    };
+  };
+
+  systemd.services.searx = {
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+
+    serviceConfig = hardening.hardened.standard // {
+      BindReadOnlyPaths = [
+        config.sops.templates."searxng-env".path
+      ];
+
+      # Restrict address families to what's actually needed
+      RestrictAddressFamilies = [
+        "AF_UNIX"
+        "AF_INET"
+        "AF_INET6"
+      ];
     };
   };
 }
