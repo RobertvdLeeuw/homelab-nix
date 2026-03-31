@@ -18,9 +18,9 @@
     # Internal Services
     ./modules/vaultwarden.nix
     ./modules/syncthing.nix
-    ./modules/adguard.nix
+    ./modules/dns.nix
     ./modules/homepage.nix
-    ./modules/radicale.nix
+    ./modules/calendar.nix
 
     # Uncucking
     ./modules/search-engine.nix
