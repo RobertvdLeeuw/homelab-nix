@@ -6,15 +6,19 @@
 }:
 
 let
-  hardening = import ../../hardening.nix { inherit lib; };
+  common-tools = import ../../common-tools.nix { inherit lib; };
 in
 {
-  sops.templates."radicale-htpasswd" = {
-    content = ''
-      robert:${config.sops.placeholder."radicale/htpasswd"}
-    '';
-    owner = "radicale";
-    mode = "0400";
+  sops = {
+    secrets."radicale/htpasswd" = { };
+
+    templates."radicale-htpasswd" = {
+      content = ''
+        robert:${config.sops.placeholder."radicale/htpasswd"}
+      '';
+      owner = "radicale";
+      mode = "0400";
+    };
   };
 
   users.users.radicale.extraGroups = [ "nginx" ];
@@ -69,7 +73,7 @@ in
       "acme-rvdlserver.nl.service"
     ];
 
-    serviceConfig = hardening.hardened.standard // {
+    serviceConfig = common-tools.hardening.standard // {
       ReadWritePaths = [ "/var/lib/radicale" ];
       BindReadOnlyPaths = [
         config.sops.templates."radicale-htpasswd".path

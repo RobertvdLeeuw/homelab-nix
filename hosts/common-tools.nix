@@ -1,7 +1,7 @@
 { lib }:
 
 {
-  hardened = rec {
+  hardening = rec {
     # Tier 1: Always safe - applies to everything
     base = {
       PrivateTmp = lib.mkDefault true;
@@ -48,4 +48,5 @@
       PrivateUsers = lib.mkDefault true; # Run in private user namespace
     };
   };
+
 }

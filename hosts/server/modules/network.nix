@@ -6,9 +6,11 @@
 }:
 
 let
-  hardening = import ../../hardening.nix { inherit lib; };
+  common-tools = import ../../common-tools.nix { inherit lib; };
 in
 {
+  sops.secrets."tailscale/auth-key" = { };
+
   services = {
     tailscale = {
       enable = true;
@@ -56,7 +58,7 @@ in
         after = [ "network-online.target" ];
         wants = [ "network-online.target" ];
 
-        serviceConfig = hardening.hardened.base // {
+        serviceConfig = common-tools.hardening.base // {
           # Tailscale needs network and some privileges
           CapabilityBoundingSet = [
             "CAP_NET_ADMIN"
@@ -90,7 +92,7 @@ in
         after = [ "tailscale.service" ];
         wants = [ "tailscale.service" ];
 
-        serviceConfig = hardening.hardened.standard // {
+        serviceConfig = common-tools.hardening.standard // {
           # nginx needs to bind to privileged ports and read certs
           CapabilityBoundingSet = [
             "CAP_NET_BIND_SERVICE"

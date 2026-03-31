@@ -9,25 +9,10 @@
 {
   imports = [ inputs.sops-nix.nixosModules.sops ];
 
-  # TODO: Make func or smth so I can overlay these (don't want unneeded secrets exposed on rPi)
-  sops =
-    let
-      secretPaths = [
-        "syncthing/password"
-        "vaultwarden/admin-token"
-        "tailscale/auth-key"
-        "adguard/password"
-        "cloudflare/api-token"
-        "cloudflare/tunnel-token"
-        "radicale/htpasswd"
-        "searxng/secret"
-      ];
-    in
-    {
-      defaultSopsFile = ../secrets.yaml;
-      age.keyFile = "/var/lib/sops-nix/key.txt";
-      secrets = lib.genAttrs secretPaths (_: { });
-    };
+  sops = {
+    defaultSopsFile = ../secrets.yaml;
+    age.keyFile = "/var/lib/sops-nix/key.txt";
+  };
 
   time.timeZone = "Europe/Amsterdam";
 

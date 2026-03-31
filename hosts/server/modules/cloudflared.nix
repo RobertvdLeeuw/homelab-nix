@@ -6,15 +6,22 @@
 }:
 
 let
-  hardening = import ../../hardening.nix { inherit lib; };
+  common-tools = import ../../common-tools.nix { inherit lib; };
 in
 {
-  sops.templates."cloudflared-token" = {
-    content = ''
-      ${config.sops.placeholder."cloudflare/tunnel-token"}
-    '';
-    owner = "cloudflared";
-    mode = "0400";
+  sops = {
+    secrets = {
+      "cloudflare/api-token" = { };
+      "cloudflare/tunnel-token" = { };
+    };
+
+    templates."cloudflared-token" = {
+      content = ''
+        ${config.sops.placeholder."cloudflare/tunnel-token"}
+      '';
+      owner = "cloudflared";
+      mode = "0400";
+    };
   };
 
   # Create cloudflared user
@@ -36,7 +43,7 @@ in
         --token $(cat ${config.sops.templates."cloudflared-token".path})
     '';
 
-    serviceConfig = hardening.hardened.standard // {
+    serviceConfig = common-tools.hardening.standard // {
       User = "cloudflared";
       Group = "cloudflared";
       Restart = "on-failure";

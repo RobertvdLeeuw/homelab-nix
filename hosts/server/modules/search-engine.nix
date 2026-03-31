@@ -6,7 +6,7 @@
 }:
 
 let
-  hardening = import ../../hardening.nix { inherit lib; };
+  common-tools = import ../../common-tools.nix { inherit lib; };
 in
 {
   virtualisation.oci-containers.containers.degoog = {
@@ -60,10 +60,14 @@ in
   };
 
   # SearXNG backend (used by Degoog)
-  sops.templates."searxng-env" = {
-    content = ''
-      SEARXNG_SECRET=${config.sops.placeholder."searxng/secret"}
-    '';
+  sops = {
+    secrets."searxng/secret" = { };
+
+    templates."searxng-env" = {
+      content = ''
+        SEARXNG_SECRET=${config.sops.placeholder."searxng/secret"}
+      '';
+    };
   };
 
   services.searx = {
@@ -135,7 +139,7 @@ in
     after = [ "network-online.target" ];
     wants = [ "network-online.target" ];
 
-    serviceConfig = hardening.hardened.standard // {
+    serviceConfig = common-tools.hardening.standard // {
       BindReadOnlyPaths = [
         config.sops.templates."searxng-env".path
       ];

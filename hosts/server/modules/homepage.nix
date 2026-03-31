@@ -6,7 +6,7 @@
 }:
 
 let
-  hardening = import ../../hardening.nix { inherit lib; };
+  common-tools = import ../../common-tools.nix { inherit lib; };
 in
 {
   sops.templates."homepage-env" = {
@@ -131,7 +131,7 @@ in
       HOMEPAGE_PUBLIC_URL = "https://rvdlserver.nl";
     };
 
-    serviceConfig = hardening.hardened.standard // {
+    serviceConfig = common-tools.hardening.standard // {
       MemoryDenyWriteExecute = false; # Node.js needs JIT
 
       # Homepage needs to write to its config directory

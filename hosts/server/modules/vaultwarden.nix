@@ -6,15 +6,19 @@
 }:
 
 let
-  hardening = import ../../hardening.nix { inherit lib; };
+  common-tools = import ../../common-tools.nix { inherit lib; };
 in
 {
-  sops.templates."vaultwarden.env" = {
-    content = ''
-      ADMIN_TOKEN=${config.sops.placeholder."vaultwarden/admin-token"}
-    '';
-    owner = "vaultwarden";
-    mode = "0400";
+  sops = {
+    secrets."vaultwarden/admin-token" = { };
+
+    templates."vaultwarden.env" = {
+      content = ''
+        ADMIN_TOKEN=${config.sops.placeholder."vaultwarden/admin-token"}
+      '';
+      owner = "vaultwarden";
+      mode = "0400";
+    };
   };
 
   services = {
@@ -60,7 +64,7 @@ in
     after = [ "network-online.target" ];
     wants = [ "network-online.target" ];
 
-    serviceConfig = hardening.hardened.standard // {
+    serviceConfig = common-tools.hardening.standard // {
       # Vaultwarden needs to write to its data directory
       ReadWritePaths = [
         "/var/lib/vaultwarden"

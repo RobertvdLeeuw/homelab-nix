@@ -6,7 +6,7 @@
 }:
 
 let
-  hardening = import ../../hardening.nix { inherit lib; };
+  common-tools = import ../../common-tools.nix { inherit lib; };
 in
 {
   # users = {
@@ -17,6 +17,8 @@ in
   #   };
   #   groups.adguardhome = { };
   # };
+
+  sops.secrets."adguard/password" = { };
 
   services = {
     adguardhome = {
@@ -118,7 +120,7 @@ in
       # "acme-rvdlserver.nl.service"
     ];
 
-    serviceConfig = hardening.hardened.base // {
+    serviceConfig = common-tools.hardening.base // {
       # AdGuard needs to bind to port 53 and write to its config/data
       CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
       AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];

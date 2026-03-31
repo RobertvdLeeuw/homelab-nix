@@ -6,9 +6,11 @@
 }:
 
 let
-  hardening = import ../../hardening.nix { inherit lib; };
+  common-tools = import ../../common-tools.nix { inherit lib; };
 in
 {
+  sops.secrets."syncthing/password" = { };
+
   services = {
     syncthing = {
       enable = true;
@@ -58,7 +60,7 @@ in
     after = [ "network-online.target" ];
     wants = [ "network-online.target" ];
 
-    serviceConfig = hardening.hardened.standard // {
+    serviceConfig = common-tools.hardening.standard // {
       ProtectHome = false; # Syncthing needs user files
       ReadWritePaths = [
         "/home/robert/nc"
