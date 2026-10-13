@@ -18,18 +18,22 @@ in
   #   groups.adguardhome = { };
   # };
 
-  sops.secrets."adguard/password" = { };
+  sops.secrets = {
+    "adguard/username" = { };
+    "adguard/password_hash" = { };
+  };
 
   services = {
     adguardhome = {
       enable = true;
       host = "127.0.0.1";
       port = 3003;
+      mutableSettings = false; # No setting changes via UI.
       settings = {
         users = [
           {
-            name = "admin";
-            password = "$2a$12$x6UeskNnFFu6ynQy/I6H5.FPky6KkzXQKnFA/ZuTVjZPa5qSdrsiS";
+            name = builtins.readFile config.sops.secrets."adguardhome/username".path;
+            password = builtins.readFile config.sops.secrets."adguardhome/password_hash".path;
           }
         ];
         dns = {

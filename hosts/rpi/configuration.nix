@@ -52,7 +52,8 @@
   };
 
   # User configuration
-  users.users.robert = {
+  users = {
+    users.robert = {
     isNormalUser = true;
     extraGroups = [
       "wheel"

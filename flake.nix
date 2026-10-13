@@ -20,6 +20,11 @@
       url = "github:nvmd/nixos-raspberrypi/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    disko = {
+      url = "github:nix-community/disko/latest";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {
@@ -38,6 +43,7 @@
       home-manager,
       sops-nix,
       nixos-raspberrypi,
+      disko,
       dotfiles,
       ...
     }@inputs:
@@ -49,6 +55,7 @@
             ./hosts/server/configuration.nix
 
             sops-nix.nixosModules.sops
+            disko.nixosModules.disko
 
             home-manager.nixosModules.home-manager
             {

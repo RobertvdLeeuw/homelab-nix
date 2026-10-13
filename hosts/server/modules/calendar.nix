@@ -21,17 +21,13 @@ in
     };
   };
 
-  users.users.radicale.extraGroups = [ "nginx" ];
-
   services = {
     radicale = {
       enable = true;
       settings = {
         server = {
           hosts = [ "127.0.0.1:5232" ];
-          ssl = true;
-          certificate = "/var/lib/acme/rvdlserver.nl/cert.pem";
-          key = "/var/lib/acme/rvdlserver.nl/key.pem";
+          # No SSL stuff since we're inside Tailscale
         };
 
         auth = {
@@ -52,7 +48,6 @@ in
       locations."/" = {
         proxyPass = "https://127.0.0.1:5232";
         extraConfig = ''
-          proxy_ssl_verify off;
           proxy_set_header X-Script-Name /;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header X-Forwarded-Proto $scheme;
@@ -66,11 +61,9 @@ in
   systemd.services.radicale = {
     after = [
       "network-online.target"
-      "acme-rvdlserver.nl.service"
     ];
     wants = [
       "network-online.target"
-      "acme-rvdlserver.nl.service"
     ];
 
     serviceConfig = common-tools.hardening.standard // {

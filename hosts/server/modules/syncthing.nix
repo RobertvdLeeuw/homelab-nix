@@ -9,17 +9,28 @@ let
   common-tools = import ../../common-tools.nix { inherit lib; };
 in
 {
-  sops.secrets."syncthing/password" = { };
+  sops.secrets = {
+    "syncthing/password" = { };
+    "syncthing/cert" = { };
+    "syncthing/key" = { };
+  };
 
   services = {
     syncthing = {
       enable = true;
+
       user = "robert";
       dataDir = "/home/robert";
       configDir = "/home/robert/.config/syncthing";
+
       openDefaultPorts = true;
+
       guiPasswordFile = config.sops.secrets."syncthing/password".path;
       guiAddress = "0.0.0.0:8384";
+
+      cert = config.sops.secrets."syncthing/cert".path;
+      key = config.sops.secrets."syncthing/key".path;
+
       settings = {
         gui.user = "robert";
         devices = {
