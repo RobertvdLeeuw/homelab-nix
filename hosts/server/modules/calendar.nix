@@ -2,11 +2,13 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 
 let
   common-tools = import ../../common-tools.nix { inherit lib; };
+  facts = inputs.dotfiles.lib.facts;
 in
 {
   sops = {
@@ -41,9 +43,9 @@ in
       };
     };
 
-    nginx.virtualHosts."cal.rvdlserver.nl" = {
+    nginx.virtualHosts."cal.${facts.domain}" = {
       forceSSL = true;
-      useACMEHost = "rvdlserver.nl";
+      useACMEHost = facts.domain;
 
       locations."/" = {
         proxyPass = "http://127.0.0.1:5232";

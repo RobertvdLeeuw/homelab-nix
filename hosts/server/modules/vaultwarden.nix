@@ -2,11 +2,13 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 
 let
   common-tools = import ../../common-tools.nix { inherit lib; };
+  facts = inputs.dotfiles.lib.facts;
 in
 {
   sops = {
@@ -31,16 +33,16 @@ in
         ROCKET_PORT = 8222;
         ROCKET_LOG = "critical";
 
-        DOMAIN = "https://vault.rvdlserver.nl";
+        DOMAIN = "https://vault.${facts.domain}";
 
         SIGNUPS_ALLOWED = false;
         INVITATIONS_ALLOWED = false;
       };
     };
 
-    nginx.virtualHosts."vault.rvdlserver.nl" = {
+    nginx.virtualHosts."vault.${facts.domain}" = {
       forceSSL = true;
-      useACMEHost = "rvdlserver.nl";
+      useACMEHost = facts.domain;
 
       locations."/" = {
         proxyPass = "http://127.0.0.1:8222";

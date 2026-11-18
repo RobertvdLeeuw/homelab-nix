@@ -2,11 +2,13 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 
 let
   common-tools = import ../../common-tools.nix { inherit lib; };
+  facts = inputs.dotfiles.lib.facts;
 in
 {
   # users = {
@@ -37,7 +39,7 @@ in
           }
         ];
         dns = {
-          bind_hosts = [ "100.79.157.102" ];
+          bind_hosts = [ facts.hosts.server.tailscale ];
           port = 53;
           bootstrap_dns = [
             "1.1.1.1"
@@ -65,13 +67,13 @@ in
 
           rewrites = [
             {
-              domain = "*.nixos-homelab.tail672432.ts.net";
-              answer = "100.79.157.102"; # Your server's Tailscale IP
+              domain = "*.nixos-homelab.${facts.tailnet}";
+              answer = facts.hosts.server.tailscale;
               enabled = true;
             }
             {
               domain = "*.nixos-homelab";
-              answer = "100.79.157.102";
+              answer = facts.hosts.server.tailscale;
               enabled = true;
             }
           ];
@@ -101,9 +103,9 @@ in
       };
     };
 
-    nginx.virtualHosts."adguard.rvdlserver.nl" = {
+    nginx.virtualHosts."adguard.${facts.domain}" = {
       forceSSL = true;
-      useACMEHost = "rvdlserver.nl";
+      useACMEHost = facts.domain;
 
       locations."/" = {
         proxyPass = "http://127.0.0.1:3003/";

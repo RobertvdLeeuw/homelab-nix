@@ -2,9 +2,13 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 
+let
+  facts = inputs.dotfiles.lib.facts;
+in
 {
   sops.templates."acme-cloudflare-env" = {
     content = ''
@@ -18,9 +22,9 @@
     acceptTerms = true;
     defaults.email = "robert.van.der.leeuw@gmail.com";
 
-    certs."rvdlserver.nl" = {
-      domain = "*.rvdlserver.nl";
-      extraDomainNames = [ "rvdlserver.nl" ];
+    certs.${facts.domain} = {
+      domain = "*.${facts.domain}";
+      extraDomainNames = [ facts.domain ];
 
       dnsProvider = "cloudflare";
       environmentFile = config.sops.templates."acme-cloudflare-env".path;
