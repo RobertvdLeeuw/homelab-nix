@@ -2,56 +2,36 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 
 let
   common-tools = import ../../common-tools.nix { inherit lib; };
+  tunnel-id = "fe346776-2b22-4144-8c5e-66e41107dfdc";
+  facts = inputs.dotfiles.lib.facts;
 in
 {
   sops = {
     secrets = {
-      "cloudflare/api-token" = { };
-      "cloudflare/tunnel-token" = { };
-    };
-
-    templates."cloudflared-token" = {
-      content = ''
-        ${config.sops.placeholder."cloudflare/tunnel-token"}
-      '';
-      owner = "cloudflared";
-      mode = "0400";
+      "cloudflare/api-token" = { }; # Used by ACME (acme.nix).
+      "cloudflare/tunnel-credentials" = { }; # Full credentials JSON, stored as a string.
     };
   };
 
-  # Create cloudflared user
-  users.users.cloudflared = {
-    isSystemUser = true;
-    group = "cloudflared";
-  };
-  users.groups.cloudflared = { };
+  services.cloudflared = {
+    enable = true;
 
-  # Manual systemd service using tunnel token
-  systemd.services.cloudflared = {
-    description = "Cloudflare Tunnel";
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
+    tunnels.${tunnel-id} = {
+      credentialsFile = config.sops.secrets."cloudflare/tunnel-credentials".path;
+      default = "http_status:404";
 
-    script = ''
-      exec ${pkgs.cloudflared}/bin/cloudflared tunnel run \
-        --token $(cat ${config.sops.templates."cloudflared-token".path})
-    '';
-
-    serviceConfig = common-tools.hardening.standard // {
-      User = "cloudflared";
-      Group = "cloudflared";
-      Restart = "on-failure";
-      RestartSec = "5s";
-
-      BindReadOnlyPaths = [
-        config.sops.templates."cloudflared-token".path
-      ];
+      ingress = {
+        "cal.${facts.domain}" = "http://127.0.0.1:5232"; # Radicale
+      };
     };
   };
+
+  # Module creates a DynamicUser unit; keep the hardening tier on top.
+  systemd.services."cloudflared-tunnel-${tunnel-id}".serviceConfig = common-tools.hardening.standard;
 }

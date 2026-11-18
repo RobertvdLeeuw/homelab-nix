@@ -2,11 +2,13 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 
 let
   common-tools = import ../../common-tools.nix { inherit lib; };
+  facts = inputs.dotfiles.lib.facts;
 in
 {
   sops.templates."homepage-env" = {
@@ -48,7 +50,7 @@ in
             {
               "Search" = {
                 icon = "google.svg";
-                href = "https://search.rvdlserver.nl";
+                href = "https://search.${facts.domain}";
                 description = "Search engine aggegrator";
                 target = "_self";
               };
@@ -60,7 +62,7 @@ in
             {
               "Vaultwarden" = {
                 icon = "vaultwarden.svg";
-                href = "https://vault.rvdlserver.nl";
+                href = "https://vault.${facts.domain}";
                 description = "Password manager";
                 target = "_self";
               };
@@ -68,7 +70,7 @@ in
             {
               "Syncthing" = {
                 icon = "syncthing.svg";
-                href = "https://sync.rvdlserver.nl";
+                href = "https://sync.${facts.domain}";
                 description = "File synchronization";
                 target = "_self";
               };
@@ -76,7 +78,7 @@ in
             {
               "AdGuard Home" = {
                 icon = "adguard-home.svg";
-                href = "https://adguard.rvdlserver.nl";
+                href = "https://adguard.${facts.domain}";
                 description = "DNS ad blocking";
                 target = "_self";
               };
@@ -84,7 +86,7 @@ in
             {
               "Radicale" = {
                 icon = "radicale.svg";
-                href = "https://cal.rvdlserver.nl";
+                href = "https://cal.${facts.domain}";
                 description = "Calendar sync";
                 target = "_self";
               };
@@ -103,9 +105,9 @@ in
       ];
     };
 
-    nginx.virtualHosts."rvdlserver.nl" = {
+    nginx.virtualHosts.${facts.domain} = {
       forceSSL = true;
-      useACMEHost = "rvdlserver.nl";
+      useACMEHost = facts.domain;
 
       locations."/" = {
         proxyPass = "http://127.0.0.1:3001";
@@ -127,8 +129,8 @@ in
 
     environment = {
       # HOMEPAGE_ALLOWED_HOSTS = lib.mkForce config.networking.hostName;
-      HOMEPAGE_ALLOWED_HOSTS = lib.mkForce "rvdlserver.nl";
-      HOMEPAGE_PUBLIC_URL = "https://rvdlserver.nl";
+      HOMEPAGE_ALLOWED_HOSTS = lib.mkForce facts.domain;
+      HOMEPAGE_PUBLIC_URL = facts.domain;
     };
 
     serviceConfig = common-tools.hardening.standard // {
