@@ -54,12 +54,13 @@
   # User configuration
   users = {
     users.robert = {
-    isNormalUser = true;
-    extraGroups = [
-      "wheel"
-      "gpio"
-      "i2c"
-    ];
+      isNormalUser = true;
+      extraGroups = [
+        "wheel"
+        "gpio"
+        "i2c"
+      ];
+    };
   };
 
   # Install useful RPi tools

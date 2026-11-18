@@ -52,10 +52,12 @@
         server = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
-            ./hosts/server/configuration.nix
-
             sops-nix.nixosModules.sops
+
             disko.nixosModules.disko
+            ./hosts/server/disko.nix
+
+            ./hosts/server/configuration.nix
 
             home-manager.nixosModules.home-manager
             {
@@ -118,7 +120,7 @@
         };
       };
 
-      checks.x86_64-linux = {
+      checks = {
         x86_64-linux.server = self.nixosConfigurations.server.config.system.build.toplevel;
         aarch64-linux.rpi = self.nixosConfigurations.rpi.config.system.build.toplevel;
       };

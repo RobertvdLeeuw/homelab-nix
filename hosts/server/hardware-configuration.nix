@@ -33,41 +33,6 @@
     extraModulePackages = [ ];
   };
 
-  disko.devices.disk.main = {
-    type = "disk";
-    device = "/dev/nvme0n1";
-    content = {
-      type = "gpt";
-      partitions = {
-        ESP = {
-          size = "512M";
-          type = "EF00";
-          content = {
-            type = "filesystem";
-            format = "vfat";
-            mountpoint = "/boot";
-            mountOptions = [
-              "fmask=0022"
-              "dmask=0022"
-            ];
-          };
-        };
-        swap = {
-          size = "16G";
-          content.type = "swap";
-        };
-        root = {
-          size = "100%";
-          content = {
-            type = "filesystem";
-            format = "ext4";
-            mountpoint = "/";
-          };
-        };
-      };
-    };
-  };
-
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
   # still possible to use this option, but it's recommended to use it in conjunction

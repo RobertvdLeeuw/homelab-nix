@@ -11,7 +11,7 @@ in
 {
   sops.templates."homepage-env" = {
     content = ''
-      HOMEPAGE_VAR_ADGUARD_PASSWORD=${config.sops.placeholder."adguard/password"}
+      HOMEPAGE_VAR_ADGUARD_PASSWORD=${config.sops.placeholder."adguard/password_hash"}
     '';
     # owner = "homepage-dashboard";
   };
