@@ -62,11 +62,11 @@
         "waybar-modules": "waybar-modules"
       },
       "locked": {
-        "lastModified": 1795042326,
-        "narHash": "sha256-9pYjdjnaUK5UCzkxnXnhlKIKsA2SJxPY9YjDKRu0dEo=",
+        "lastModified": 1795045527,
+        "narHash": "sha256-Jb1MXNxTKSE2suPqAs1qtx5AJgvDz55nxryyTrRGwfY=",
         "owner": "RobertvdLeeuw",
         "repo": "dotfiles_nix",
-        "rev": "097c76c90b9c805d6116c749eed4f3ae31842f31",
+        "rev": "bd895d1fc2dd3aeb8468f9e0f09127a55afdbbe6",
         "type": "github"
       },
       "original": {

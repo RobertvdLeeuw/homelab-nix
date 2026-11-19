@@ -6,6 +6,9 @@
   ...
 }:
 
+let
+  facts = inputs.dotfiles.lib.facts;
+in
 {
   imports = [ inputs.sops-nix.nixosModules.sops ];
 
@@ -17,12 +20,18 @@
 
   time.timeZone = "Europe/Amsterdam";
 
-  services.openssh = {
-    enable = true;
-    ports = [
-      # 22
-      8022
-    ];
+  services = {
+    openssh = {
+      enable = true;
+      ports = [
+        facts.hosts.server.ssh-port
+      ];
+    };
+
+    # journald.settings.Journal = {
+    #   SystemMaxUse = "50M";
+    #   Compress = "yes";
+    # };
   };
 
   nixpkgs.config = {
