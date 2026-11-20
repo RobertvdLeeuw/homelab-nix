@@ -9,6 +9,7 @@
   imports = [
     ../common-config.nix
     ./hardware-configuration.nix
+    ./disko.nix
 
     # Base
     ./modules/network.nix

@@ -11,18 +11,14 @@ let
   facts = inputs.dotfiles.lib.facts;
 in
 {
-  # users = {
-  #   users.adguardhome = {
-  #     isSystemUser = true;
-  #     group = "adguardhome";
-  #     extraGroups = [ "nginx" ];
-  #   };
-  #   groups.adguardhome = { };
-  # };
+  sops = {
+    secrets."adguard/password_hash" = { };
 
-  sops.secrets = {
-    "adguard/username" = { };
-    "adguard/password_hash" = { };
+    templates."adguard" = {
+      content = ''
+        ADGUARD_PW_HASH=${config.sops.placeholder."adguard/password_hash"}
+      '';
+    };
   };
 
   services = {
@@ -34,8 +30,8 @@ in
       settings = {
         users = [
           {
-            name = config.sops.placeholder."adguard/username";
-            password = config.sops.placeholder."adguard/password_hash";
+            name = "admin";
+            password = "@ADGUARD_PW_HASH@";
           }
         ];
         dns = {
@@ -123,22 +119,14 @@ in
   systemd.services.adguardhome = {
     after = [
       "network-online.target"
-      # "acme-rvdlserver.nl.service"
     ];
     wants = [
       "network-online.target"
-      # "acme-rvdlserver.nl.service"
     ];
 
     # Can't pass a file for credentials, so this is how we get sops stuff into config.
     preStart = lib.mkAfter ''
-      f="$STATE_DIRECTORY/AdGuardHome.yaml"
-      ${pkgs.replace-secret}/bin/replace-secret '${
-        config.sops.placeholder."adguard/username"
-      }' "$CREDENTIALS_DIRECTORY/user" "$f"
-      ${pkgs.replace-secret}/bin/replace-secret '${
-        config.sops.placeholder."adguard/password_hash"
-      }' "$CREDENTIALS_DIRECTORY/hash" "$f"
+      ${pkgs.replace-secret}/bin/replace-secret '@ADGUARD_PASS_HASH@' "$CREDENTIALS_DIRECTORY/pass" "$STATE_DIRECTORY/AdGuardHome.yaml"
     '';
 
     serviceConfig = common-tools.hardening.base // {
@@ -149,15 +137,8 @@ in
         "/var/lib/AdGuardHome"
       ];
       LoadCredential = [
-        "user:${config.sops.secrets."adguard/username".path}"
-        "hash:${config.sops.secrets."adguard/password_hash".path}"
+        "pass:${config.sops.secrets."adguard/password_hash".path}"
       ];
-      # BindReadOnlyPaths = [
-      #   "/var/lib/acme/rvdlserver.nl/cert.pem"
-      #   "/var/lib/acme/rvdlserver.nl/key.pem"
-      # ];
     };
   };
-
-  # networking.firewall.allowedTCPPorts = [ 443 ];
 }

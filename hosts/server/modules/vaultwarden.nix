@@ -12,11 +12,11 @@ let
 in
 {
   sops = {
-    secrets."vaultwarden/admin-token" = { };
+    secrets."vaultwarden/admin-token-hash" = { };
 
     templates."vaultwarden.env" = {
       content = ''
-        ADMIN_TOKEN=${config.sops.placeholder."vaultwarden/admin-token"}
+        ADMIN_TOKEN=${config.sops.placeholder."vaultwarden/admin-token-hash"}
       '';
       owner = "vaultwarden";
       mode = "0400";

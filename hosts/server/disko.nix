@@ -1,7 +1,7 @@
 {
   disko.devices.disk.main = {
     type = "disk";
-    device = "/dev/nvme0n1";
+    device = "/dev/disk/by-id/nvme0n1";
     content = {
       type = "gpt";
       partitions = {
@@ -25,9 +25,30 @@
         root = {
           size = "100%";
           content = {
-            type = "filesystem";
-            format = "ext4";
-            mountpoint = "/";
+            type = "btrfs";
+            extraArgs = [
+              "-f"
+              "-L"
+              "nixos"
+              "-m"
+              "dup"
+            ];
+            subvolumes = {
+              "@" = {
+                mountpoint = "/";
+                mountOptions = [
+                  "compress=zstd"
+                  "noatime"
+                ];
+              };
+              "@nix" = {
+                mountpoint = "/nix";
+                mountOptions = [
+                  "compress=zstd"
+                  "noatime"
+                ];
+              };
+            };
           };
         };
       };

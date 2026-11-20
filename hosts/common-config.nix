@@ -28,6 +28,12 @@ in
       ];
     };
 
+    btrfs.autoScrub = {
+      enable = true;
+      fileSystems = [ "/" ];
+      interval = "monthly";
+    };
+
     # journald.settings.Journal = {
     #   SystemMaxUse = "50M";
     #   Compress = "yes";

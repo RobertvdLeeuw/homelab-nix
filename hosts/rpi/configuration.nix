@@ -9,6 +9,8 @@
 {
   imports = [
     ./hardware-configuration.nix
+    ./disko.nix
+
     ../common-config.nix
   ]
   ++ (with inputs.nixos-raspberrypi.nixosModules; [

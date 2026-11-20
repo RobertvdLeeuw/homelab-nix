@@ -25,7 +25,7 @@ in
       recommendedTlsSettings = true;
       recommendedOptimisation = true;
       recommendedGzipSettings = true;
-      recommendedProxySettings = true;
+      recommendedProxySettings = false;
 
       proxyTimeout = "3600s";
       commonHttpConfig = ''

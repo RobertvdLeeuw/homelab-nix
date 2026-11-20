@@ -55,8 +55,6 @@
             sops-nix.nixosModules.sops
 
             disko.nixosModules.disko
-            ./hosts/server/disko.nix
-
             ./hosts/server/configuration.nix
 
             home-manager.nixosModules.home-manager
@@ -90,6 +88,8 @@
         rpi = nixos-raspberrypi.lib.nixosSystem {
           specialArgs = { inherit inputs nixos-raspberrypi; };
           modules = [
+            disko.nixosModules.disko
+
             ./hosts/rpi/configuration.nix
 
             sops-nix.nixosModules.sops
